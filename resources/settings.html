@@ -1,0 +1,44 @@
+{{define "settings"}}
+{{template "header" .Header}}
+<div>
+    <div class="card">
+        <h5 class="card-header">設定</h5>
+        <div class="card-body">
+            <div class="card">
+                <h5 class="card-header">アイコン </h5>
+                <div class="card-body">
+                    <form action="index.up?Action=Seticon&Page=Settings" method="POST" enctype="multipart/form-data">
+                        <p>自分のユーザアイコンを設定できます。</p>
+                        <img id="preview" style="width: 200px;height: 200px;object-fit: contain;"><br>
+                        <input type="file" name="icon" id="icon" accept="image/*"><br>
+                        <button type="submit" class="btn btn-primary">変更</button>
+                    </form>
+                </div>
+            </div>
+            <div class="card">
+                <h5 class="card-header">Slackの通知設定 </h5>
+                <div class="card-body">
+                    <form action="index.up?Action=Setchannel&Page=Settings" method="POST">
+                        <p>コメントの書き込みがあった場合の通知先チャンネルを指定できます。</p>
+                        <input type="text" name="channel" placeholder="例：#tk-lab_777"></input><br>
+                        <button type="submit" class="btn btn-primary">変更</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const target = document.getElementById('icon');
+    target.addEventListener('change', function (e) {
+        const file = e.target.files[0]
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = document.getElementById("preview")
+            img.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }, false);
+</script>
+{{template "footer"}}
+{{end}}

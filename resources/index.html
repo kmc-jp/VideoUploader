@@ -1,0 +1,81 @@
+{{define "index"}}
+
+{{template "header" .Header}}
+
+<div class="desktop">
+    <div class="card">
+        <h5 class="card-header">New Videos</h5>
+        <div class="card-body">
+            <p class="h1"></p>
+            <div class="container">
+                <div class="row row-cols-4">
+                    {{range $i, $vid := .Video}}
+                    {{if eq $i 4}}
+                </div>
+                <div class="row row-cols-4">
+                    {{end}}
+                    {{if lt $i 8}}
+                    <div class="col">
+                        <div class="card" style="width: 10rem; height: 200px;overflow: hidden;">
+                            <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                                <img src="Videos/{{$vid.Thumb}}" class="card-img-top index_video" alt="{{$vid.Title}}">
+                            </a>
+                            <div class="card-body">
+                                <p class="card-text" style="white-space: nowrap;overflow: ellipsis;">
+                                    <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                                        {{$vid.Title}}<br></a>
+                                    <a
+                                        href="index.up?Page=UserPage&User={{$vid.User}}"><small>{{$vid.User}}</small></a><br>
+                                    <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                                        <small>{{$vid.Time.Format "2006年1月2日"}}</small>
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mobile">
+    <div class="card">
+        <h5 class="card-header">New Videos</h5>
+        <div class="card-body">
+            <p class="h1"></p>
+            <div class="container">
+                <div class="row row-cols-2">
+                    {{range $i, $vid := .Video}}
+                    {{if or (or (eq $i 2) (eq $i 4)) (eq $i 6)}}
+                </div>
+                <div class="row row-cols-2">
+                    {{end}}
+                    {{if lt $i 8}}
+                    <div class="col">
+                        <div class="card" style="width: 10rem; height: 200px;">
+                            <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                                <img src="Videos/{{$vid.Thumb}}" class="card-img-top index_video" alt="{{$vid.Title}}">
+                            </a>
+                            <div class="card-body">
+                                <p class="card-text" style="white-space: nowrap;overflow: ellipsis;overflow: hidden;">
+                                    <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                                        {{$vid.Title}}<br></a>
+                                    <a
+                                        href="index.up?Page=UserPage&User={{$vid.User}}"><small>{{$vid.User}}</small></a><br>
+                                    <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}"><small>{{$vid.Time.Format "2006年1月2日"}}</small>
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{template "footer"}}
+{{end}}

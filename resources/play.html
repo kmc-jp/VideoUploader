@@ -1,0 +1,213 @@
+{{define "play"}}
+{{template "header" .Header}}
+<div class="video_div">
+    <div class="card">
+        <h5 class="card-header">{{.Video.Title}}</h5>
+        <div>
+            <div class="card-body">
+                <video id="video" src="Videos/{{.Video.Video}}" controls></video><br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="desktop">
+    <div class="card" id="other">
+        <h5 class="card-header">Other Videos</h5>
+        <div>
+            <table class="play">
+                {{range $i, $vid := .User.Video}}
+                <tr>
+                    <td rowspan="4">
+                        <a href=" index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                            <img src="Videos/{{$vid.Thumb}}" class="video">
+                        </a>
+                    </td>
+                    <td rowspan="1">
+                        <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                            <small class="text-muted">{{$vid.Time.Format "2006年1月2日"}}</small>
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td rowspan="3">
+                        <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                            <h6>{{$vid.Title}}</h6>
+                        </a>
+                    </td>
+                </tr>
+                <tr></tr>
+                <tr></tr>
+                {{end}}
+            </table>
+        </div>
+    </div>
+    <div class="video_div">
+        <div class="card" class="video_div">
+            <a href="javascript:ToggleDisplayDetails('details_desktop');ToggleDisplayDetails('details_mobile');">
+                <h5 class="card-header">Details</h5>
+            </a>
+            <div>
+                <div class="card-body" id="details_desktop" style="display: unset;">
+                    投稿時刻:{{.Video.Time.Format "2006年1月2日"}}<br>
+                    <a href="index.up?Page=UserPage&User={{.User.Name}}">
+                        {{if ne .User.Icon ""}}
+                        <img src="{{.User.Icon}}" class="icon"></img>
+                        {{else}}
+                        <img src="static/icon/user.png" class="icon"></img>
+                        {{end}}
+                        {{.User.Name}}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="video_div">
+        <div class="card">
+            <a href="javascript:ToggleDisplayDetails('slack_desktop');ToggleDisplayDetails('slack_mobile');">
+                <h5 class="card-header">Share to Slack</h5>
+            </a>
+            <div class="card-body" style="display: none;" id="slack_desktop">
+                <form action="index.up">
+                    <p>投稿先のチャンネルを入力してください</p>
+                    <img src="Videos/{{.Video.Thumb}}" style="width: 200px;height: 200px;object-fit: contain;"><br>
+                    <input type="text" name="Channel" class="form-control" placeholder="例：#tk-memo_777"></input>
+                    <a href="javascript:HideSlackMenu();">
+                        <button type="button" class="btn btn-secondary">取消</button>
+                    </a>
+
+                    <input type="hidden" name="Action" value="SendSlack">
+                    <input type="hidden" name="User" value="{{.Video.User}}">
+                    <input type="hidden" name="Video" value="{{.Video.Video}}">
+                    <input type="hidden" name="Page" value="Play">
+
+                    <button type="submit" class="btn btn-primary">送信</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="mobile">
+
+    <div class="video_div">
+        <div class="card" class="video_div">
+            <a href="javascript:ToggleDisplayDetails('details_mobile');ToggleDisplayDetails('details_desktop');">
+                <h5 class="card-header">Details</h5>
+            </a>
+            <div>
+                <div class="card-body" id="details_mobile" style="display: unset;">
+                    投稿時刻:{{.Video.Time.Format "2006年1月2日"}}<br>
+                    <a href="index.up?Page=UserPage&User={{.User.Name}}">
+                        {{if ne .User.Icon ""}}
+                        <img src="{{.User.Icon}}" class="icon"></img>
+                        {{else}}
+                        <img src="static/icon/user.png" class="icon"></img>
+                        {{end}}
+                        {{.User.Name}}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="video_div">
+        <div class="card">
+            <a href="javascript:ToggleDisplayDetails('slack_desktop');ToggleDisplayDetails('slack_mobile');">
+                <h5 class="card-header">Share to Slack</h5>
+            </a>
+            <div class="card-body" id="slack_mobile" style="display: none;">
+                <form action="index.up">
+                    <p>投稿先のチャンネルを入力してください</p>
+                    <img src="Videos/{{.Video.Thumb}}" style="width: 200px;height: 200px;object-fit: contain;"><br>
+                    <input type="text" name="Channel" class="form-control" placeholder="例：#tk-memo_777"></input>
+                    <a href="javascript:HideSlackMenu();">
+                        <button type="button" class="btn btn-secondary">取消</button>
+                    </a>
+
+                    <input type="hidden" name="Action" value="SendSlack">
+                    <input type="hidden" name="User" value="{{.Video.User}}">
+                    <input type="hidden" name="Video" value="{{.Video.Video}}">
+                    <input type="hidden" name="Page" value="Play">
+
+                    <button type="submit" class="btn btn-primary">送信</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+    <div class="card" id="other">
+        <a href="javascript:ToggleDisplayDetails('other_videos');">
+            <h5 class="card-header">Other Videos</h5>
+        </a>
+        <div id="other_videos">
+            <table class="play">
+                {{range $i, $vid := .User.Video}}
+                <tr>
+                    <td rowspan="4">
+                        <a href=" index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                            <img src="Videos/{{$vid.Thumb}}" class="video">
+                        </a>
+                    </td>
+                    <td rowspan="1">
+                        <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                            <small class="text-muted">{{$vid.Time.Format "2006年1月2日"}}</small>
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td rowspan="3">
+                        <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                            <h6>{{$vid.Title}}</h6>
+                        </a>
+                    </td>
+                </tr>
+                <tr></tr>
+                <tr></tr>
+                {{end}}
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="video_div">
+    <div class="card">
+        <a href="javascript:ToggleDisplayDetails('comment');">
+            <h5 class="card-header">Comments</h5>
+        </a>
+        <div id="comment">
+            <div id="comment_output">
+                <form action="#" onsubmit=" SendComment('{{.Video.Video}}');return false;">
+                    <div class=" input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Input your comments" id="comment_input"
+                            aria-label="Comment" aria-describedby="button-addon2">
+                        <div class="input-group-append">
+                            <a href="javascript:SendComment('{{.Video.Video}}');">
+                                <button class="btn btn-outline-secondary" type="submit" id="button-addon2">
+                                    <i class="far fa-paper-plane"></i>
+                                </button>
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="comment_text">
+            </div>
+        </div>
+        <script>
+            window.onload = function () {
+                GetComments("{{.Video.Video}}");
+            };
+        </script>
+
+    </div>
+</div>
+
+{{template "footer" .Footer}}
+
+{{end}}

@@ -1,0 +1,80 @@
+{{define "user"}}
+
+{{template "header" .Header}}
+<div>
+    <div class="card">
+        <h5 class="card-header">{{.User.Name}}のお部屋</h5>
+        <div class="card-body">
+            <table class="nb">
+                {{range $i, $vid := .User.Video}}
+                {{if or (ne $vid.Status.Error "") (ne $vid.Status.Phase "")}}
+                {{else}}
+                <!-- 通常 -->
+                <tr>
+                    <td rowspan="4">
+                        <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                            <img src="Videos/{{$vid.Thumb}}" class="video">
+                        </a>
+                    </td>
+                    <td rowspan="1">
+                        <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                            <small class="text-muted">投稿日時：{{$vid.Time.Format "2006年1月2日15時04分"}}</small>
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td rowspan="3">
+                        <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                            <h6>{{$vid.Title}}</h6>
+                        </a>
+                    </td>
+
+                    <td rowspan="2">
+                        <a
+                            href="javascript:SlackMenu('{{$vid.Title}}','{{$vid.User}}', '{{$vid.Video}}' , 'Videos/{{$vid.Thumb}}', 'UserPage' );">
+                            <span style="font-size: 30px; color: #4B4B4B;;">
+                                <i class="fab fa-slack"></i>
+                            </span>
+                        </a>
+                    </td>
+
+
+                <tr></tr>
+                <tr></tr>
+                <tr></tr>
+                {{end}}
+                {{end}}
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="slack" style="display: none; position: absolute;">
+    <div class="card">
+        <h5 class="card-header" id="slackHead">Slackへの投稿</h5>
+        <div class="card-body">
+            <form action="index.up" id="slack_menu">
+                <p>投稿先のチャンネルを入力してください</p>
+                <img id="slack_thumb_preview" style="width: 200px;height: 200px;object-fit: contain;"><br>
+                <input type="text" name="Channel" class="form-control" placeholder="例：#tk-memo_777"></input>
+                <a href="javascript:HideSlackMenu();">
+                    <button type="button" id="cancel" class="btn btn-secondary">取消</button>
+                </a>
+
+                <input type="hidden" name="Action" value="SendSlack">
+                <input type="hidden" id="slack_video_user" name="User">
+                <input type="hidden" id="slack_video_id" name="Video">
+                <input type="hidden" id="slack_video_page" name="Page">
+
+                <button type="submit" class="btn btn-primary">送信</button>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    setInterval("ObjectPos('slack');", 300);
+</script>
+{{template "footer"}}
+{{end}}

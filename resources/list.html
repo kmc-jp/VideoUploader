@@ -1,0 +1,85 @@
+{{define "list"}}
+
+{{template "header" .Header}}
+<div>
+    <div class="card">
+        <h5 class="card-header">他のユーザを探す</h5>
+        <div class="card-body">
+            <div class="desktop">
+                <table class="nb">
+                    {{$i := 0}}
+                    {{range $name, $ur := .User}}
+                    {{if eq $i 0}}
+                    <tr>
+                        <td>
+                            <a href="index.up?Page=UserPage&User={{$ur.Name}}">
+                                {{if ne $ur.Icon ""}}
+                                <img src="{{$ur.Icon}}" class="icon"></img>
+                                {{else}}
+                                <img src="static/icon/user.png" class="icon"></img>
+                                {{end}}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="index.up?Page=UserPage&User={{$ur.Name}}">
+                                <p>{{$ur.Name}}</p>
+                            </a>
+                        </td>
+                        {{$i = 1}}
+                        {{else}}
+                        <td>
+                            <a href="index.up?Page=UserPage&User={{$ur.Name}}">
+                                {{if ne $ur.Icon ""}}
+                                <img src="{{$ur.Icon}}" class="icon"></img>
+                                {{else}}
+                                <img src="static/icon/user.png" class="icon"></img>
+                                {{end}}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="index.up?Page=UserPage&User={{$ur.Name}}">
+                                <p>{{$ur.Name}}</p>
+                            </a>
+                        </td>
+                    </tr>
+                    {{$i = 0}}
+                    {{end}}
+                    {{end}}
+                    {{if eq $i 1}}
+                    <td> </td>
+                    <td> </td>
+                    </tr>
+                    {{end}}
+                </table>
+            </div>
+            <div class="mobile">
+                <table class="nb">
+                    {{range $name, $ur := .User}}
+
+                    <tr>
+                        <td>
+                            <a href="index.up?Page=UserPage&User={{$ur.Name}}">
+                                {{if ne $ur.Icon ""}}
+                                <img src="{{$ur.Icon}}" class="icon"></img>
+                                {{else}}
+                                <img src="static/icon/user.png" class="icon"></img>
+                                {{end}}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="index.up?Page=UserPage&User={{$ur.Name}}">
+                                <p>{{$ur.Name}}</p>
+                            </a>
+                        </td>
+                    </tr>
+                    {{end}}
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{template "footer"}}
+
+{{end}}

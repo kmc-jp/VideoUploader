@@ -1,0 +1,213 @@
+{{define "mypage"}}
+
+{{template "header" .Header}}
+<div>
+    <div class="card">
+        <h5 class="card-header">{{.Header.UserName}}のお部屋</h5>
+        <div class="card-body">
+            <table class="nb">
+                {{range $i, $vid := .Video}}
+                {{if ne $vid.Status.Error ""}}
+                <!-- エラーが発生している場合 -->
+                <tr>
+                    <td rowspan="4">
+                        <img src="static/icon/movie.png" class="video">
+                    </td>
+                    <td rowspan="1">
+                        <small class="text-muted">投稿日時：{{$vid.Time.Format "2006年1月2日15時04分"}}</small>
+                    </td>
+                </tr>
+                <tr>
+                    <td rowspan="3">
+                        <h6>{{$vid.Title}}</h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td rowspan="2">
+                        <img src="static/icon/edit.png" style="height: 30px;">
+                    </td>
+                    <td rowspan="2">
+                        <img src="static/icon/slack.png" style="height: 30px;">
+                    </td>
+                    <td rowspan="2">
+                        <a href="javascript:DeleteConfirm('{{$vid.Title}}','{{$vid.Video}}');"><img
+                                src="static/icon/delete.png" style="height: 30px;"></a>
+                    </td>
+                </tr>
+                <tr></tr>
+                <tr>
+                    <td>
+                        <img src="static/icon/caution.png" class="video" style="height:30px; width: 30px;">
+                    </td>
+                    <td>
+                        <p>{{$vid.Status.Error}}</p>
+                    </td>
+                    <td>
+                        <p>動画のエンコード中にエラーが発生しました。</p>
+                    </td>
+                </tr>
+                {{else if ne $vid.Status.Phase ""}}
+                <!-- まだエンコード中の場合 -->
+                <tr>
+                    <td rowspan="4">
+                        <img src="static/icon/movie.png" class="video">
+                    </td>
+                    <td rowspan="1">
+                        <small class="text-muted">投稿日時：{{$vid.Time.Format "2006年1月2日15時04分"}}</small>
+                    </td>
+                </tr>
+                <tr>
+                    <td rowspan="3">
+                        <h6>{{$vid.Title}}</h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td rowspan="2">
+                        <img src="static/icon/edit.png" style="height: 30px;">
+                    </td>
+                    <td rowspan="2">
+                        <img src="static/icon/slack.png" style="height: 30px;">
+                    </td>
+                    <td rowspan="2">
+                        <img src="static/icon/delete.png" style="height: 30px;">
+                    </td>
+                </tr>
+                <tr></tr>
+                <tr class="status">
+                    <td>
+                        <img src="static/icon/loading.gif" class="video" style="height:30px; width: 30px;">
+                    </td>
+                    <td>
+                        <p>処理中……
+                    </td>
+                    <td>
+                        現在:{{$vid.Status.Phase}}</p>
+                    </td>
+                    <td>
+                        最新の状態を取得するにはページを更新してください。
+                    </td>
+                </tr>
+                {{else}}
+                <!-- 通常 -->
+                <tr>
+                    <td rowspan="4">
+                        <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                            <img src="Videos/{{$vid.Thumb}}" class="video">
+                        </a>
+                    </td>
+                    <td rowspan="1">
+                        <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                            <small class="text-muted">投稿日時：{{$vid.Time.Format "2006年1月2日15時04分"}}</small>
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td rowspan="3">
+                        <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                            <h6>{{$vid.Title}}</h6>
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td rowspan="2">
+                        <a
+                            href="javascript:editPage('{{$vid.Title}}','{{$vid.User}}', '{{$vid.Video}}' , 'Videos/{{$vid.Thumb}}' );">
+                            <img src="static/icon/edit.png" style="height: 30px;">
+                        </a>
+                    </td>
+                    <td rowspan="2">
+                        <a
+                            href="javascript:SlackMenu('{{$vid.Title}}','{{$vid.User}}', '{{$vid.Video}}' , 'Videos/{{$vid.Thumb}}', 'MyPage' );">
+                            <span style="font-size: 30px; color: #4B4B4B;;">
+                                <i class="fab fa-slack"></i>
+                            </span>
+                        </a>
+                    </td>
+                    <td rowspan=" 2">
+                        <a href="javascript:DeleteConfirm('{{$vid.Title}}','{{$vid.Video}}');"><img
+                                src="static/icon/delete.png" style="height: 30px;"></a>
+                    </td>
+                </tr>
+                <tr></tr>
+                {{end}}
+                {{end}}
+            </table>
+        </div>
+    </div>
+    <div id="edit" style="display: none;position:absolute;">
+        <div class="card">
+            <h5 class="card-header" id="editHead">編集</h5>
+            <div class="card-body">
+                <form action="index.up?Action=Update" method="POST" id="editPost" enctype="multipart/form-data">
+                    <p>サムネイル</p>
+                    <img id="preview" style="width: 200px;height: 200px;object-fit: contain;"><br>
+                    <input type="file" name="thumbnail" id="thumbnail" accept="image/*"><br>
+                    <p>題名</p>
+                    <input type="text" name="title" class="form-control" placeholder="例：いもーとといっしょ、だよ？"><br>
+                    <a href="javascript:HideEditWindow();">
+                        <button type="button" id="cancel" class="btn btn-secondary">取消</button>
+                    </a>
+                    <input type="hidden" id="video_id" name="video_id">
+                    <button type="submit" class="btn btn-primary">変更</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="delete" style="display: none; position: absolute;">
+        <div class="card">
+            <h5 class="card-header" id="deleteHead">削除</h5>
+            <div class="card-body">
+                <p id="delete_confirm_p">本当に削除しますか。</p>
+                <a href="javascript:HideDeleteWindow();">
+                    <button type="button" class="btn btn-secondary">取消</button>
+                </a>
+                <a href="index.up?Action=Delte" id="delete_button">
+                    <button type="button" class="btn btn-primary">はい</button>
+                </a>
+            </div>
+        </div>
+
+    </div>
+    <div id="slack" style="display: none; position: absolute;">
+        <div class="card">
+            <h5 class="card-header" id="slackHead">Slackへの投稿</h5>
+            <div class="card-body">
+                <form action="index.up" id="slack_menu">
+                    <p>投稿先のチャンネルを入力してください</p>
+                    <img id="slack_thumb_preview" style="width: 200px;height: 200px;object-fit: contain;"><br>
+                    <input type="text" name="Channel" class="form-control" placeholder="例：#tk-memo_777"></input>
+                    <a href="javascript:HideSlackMenu();">
+                        <button type="button" id="cancel" class="btn btn-secondary">取消</button>
+                    </a>
+
+                    <input type="hidden" name="Action" value="SendSlack">
+                    <input type="hidden" id="slack_video_user" name="User">
+                    <input type="hidden" id="slack_video_id" name="Video">
+                    <input type="hidden" id="slack_video_page" name="Page">
+
+                    <button type="submit" class="btn btn-primary">送信</button>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+    const target = document.getElementById('thumbnail');
+    target.addEventListener('change', function (e) {
+        const file = e.target.files[0]
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = document.getElementById("preview")
+            img.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }, false);
+
+    setInterval("ObjectPos('edit');ObjectPos('slack');ObjectPos('delete');", 300);
+</script>
+{{template "footer"}}
+{{end}}

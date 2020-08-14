@@ -1,0 +1,20 @@
+{{define "upload"}}
+{{template "header" .Header}}
+
+<form method="POST" id="fileform" action="index.up?Action=Upload" enctype="multipart/form-data">
+    <div class="card">
+        <h5 class="card-header">Upload</h5>
+        <div class="card-body">
+            <p class="card-text">投稿する動画を選択してください。</p>
+            <input type="file" name="video" id="other_upload" accept="video/*"><br><br>
+            <p class="card-text">サムネイル</p>
+            <input type="file" name="thumbnail" accept="image/*"><br><br>
+            <p class="card-text">題名</p>
+            <input type="text" name="title" class="form-control" placeholder="例：いもうとらぶるっ！"><br>
+            <button type="submit" class="btn btn-primary">投稿</button>
+        </div>
+    </div>
+</form>
+
+{{template "footer"}}
+{{end}}

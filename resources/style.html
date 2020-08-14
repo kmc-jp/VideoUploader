@@ -1,0 +1,151 @@
+{{define "style"}}
+<style>
+    @media screen and (min-width: 768px) {
+        div.desktop {
+            display: unset;
+        }
+
+        div.mobile {
+            display: none;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        div.desktop {
+            display: none;
+        }
+
+        div.mobile {
+            display: unset;
+        }
+    }
+
+    @media screen and (min-width: 768px) {
+        .video_div {
+            float: left;
+            width: 70%;
+            box-sizing: border-box;
+        }
+
+        #other {
+            float: right;
+            width: 30%;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        .video_div {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #other {
+            width: 100%;
+        }
+    }
+
+    #video {
+        width: 100%;
+        object-fit: contain;
+    }
+
+    .card-img-top.index_video {
+        width: 100%;
+        height: 100px;
+        object-fit: contain;
+    }
+
+    #h_icon {
+        width: 40px;
+        height: 40px;
+        object-fit: contain;
+        border: 3px solid;
+        border-color: rgb(220, 220, 220);
+        border-radius: 5px;
+    }
+
+    .icon {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+        border: 3px solid;
+        border-color: rgb(220, 220, 220);
+        border-radius: 5px;
+    }
+
+    img.video {
+        width: 100%;
+        height: 100px;
+        object-fit: contain;
+    }
+
+    table.play {
+        border-collapse: collapse;
+        border-spacing: 0;
+        width: 100%;
+    }
+
+    table.play tr {
+        border-bottom: solid 1px #eee;
+        cursor: pointer;
+    }
+
+    table.play td:hover {
+        background-color: #d4f0fd;
+    }
+
+    table.play th,
+    table.play td {
+        text-align: center;
+        width: 25%;
+        padding: 3px 0;
+    }
+
+    table.nb td:hover {
+        background-color: #d4f0fd;
+    }
+
+    table.nb {
+        border-collapse: collapse;
+        border-spacing: 0;
+        width: 100%;
+    }
+
+    table.nb tr {
+        border-bottom: solid 1px #eee;
+        cursor: pointer;
+    }
+
+    table.nb tr.status {
+        height: 50px;
+    }
+
+    table.nb td:hover {
+        background-color: #d4f0fd;
+    }
+
+    table.nb th,
+    table.nb td {
+        text-align: center;
+        width: 25%;
+        padding: 15px 0;
+    }
+
+    table.nb td.icon {
+        background-size: 35px;
+        background-position: left 5px center;
+        background-repeat: no-repeat;
+        padding-left: 30px;
+    }
+
+    table.nb th.check,
+    table.nb td {
+        width: 5%;
+    }
+
+    table.nb td.button,
+    table.nb td {
+        width: 10%;
+    }
+</style>
+{{end}}
