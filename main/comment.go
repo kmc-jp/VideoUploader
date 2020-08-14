@@ -36,6 +36,7 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 	err := user.Get(os.Getenv("REMOTE_USER"))
 	if err != nil {
 		lib.Logger(err)
+		slack.SendError(err)
 		S(w, 500)
 		return
 	}
@@ -49,6 +50,7 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		S(w, 500)
 		lib.Logger(err)
+		slack.SendError(err)
 		return
 	}
 
@@ -75,6 +77,7 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		S(w, 500)
 		lib.Logger(err)
+		slack.SendError(err)
 		return
 	}
 
@@ -84,6 +87,7 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 	var upUser lib.User
 	if err := upUser.Get(v.User); err != nil {
 		lib.Logger(err)
+		slack.SendError(err)
 		S(w, 200)
 		return
 	}
@@ -103,6 +107,7 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		S(w, 200)
 		lib.Logger(err)
+		slack.SendError(err)
 		return
 	}
 	S(w, 200)
@@ -130,6 +135,7 @@ func ReadComment(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		S(w, 500)
 		lib.Logger(err)
+		slack.SendError(err)
 		return
 	}
 

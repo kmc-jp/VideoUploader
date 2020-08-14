@@ -75,3 +75,20 @@ func SendComment(comment lib.Comment, video lib.Video, channel, URL string) erro
 
 	return Message.Send()
 }
+
+// SendError send error to the Slack error channel
+func SendError(e error) {
+	var Message = Webhook{
+		Text:     fmt.Sprintf("問題が発生しました。"),
+		Channel:  lib.Settings.ErrorChannel,
+		UserName: "VideoUploader -ErrorNotifier- ",
+		Attachments: []Attachment{
+			{
+				Title: "問題の内容",
+				Text:  fmt.Sprintf("%s", e.Error()),
+			},
+		},
+	}
+
+	Message.Send()
+}

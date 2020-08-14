@@ -7,6 +7,7 @@ type Setting struct {
 	FFmpeg       string `json:"ffmpeg"`
 	FFprobe      string `json:"ffprobe"`
 	SlackWebhook string `json:"slack_webhook"`
+	ErrorChannel string `json:"error_channel"`
 	GyazoToken   string `json:"gyazo_token"`
 }
 
@@ -18,6 +19,7 @@ type Video struct {
 	Time   time.Time `json:"time"`
 	Thumb  string    `json:"thumb"`
 	Status Status    `json:"status"`
+	Tags   []string  `json:"tags"`
 }
 
 // Comment put comment data
@@ -42,3 +44,6 @@ type User struct {
 	Icon  string  `json:"icon"`
 	Slack string
 }
+
+//Tag put tag data
+type Tag map[string][]string

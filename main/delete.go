@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"../lib"
+	"../slack"
 )
 
 //Delete delete put video
@@ -28,6 +29,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	if e := user.Get(os.Getenv("REMOTE_USER")); e != nil {
 		getQuery["Error"] = "NotFound"
 		lib.Logger(e)
+		slack.SendError(e)
 		w.Header().Set("Location", "index.up"+getQuery.Encode())
 		w.WriteHeader(http.StatusTemporaryRedirect)
 		return

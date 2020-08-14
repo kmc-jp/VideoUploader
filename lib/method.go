@@ -193,8 +193,9 @@ func (c Comment) Save(VideoID string) error {
 
 	if !FileExistance(CommentPath) {
 		ioutil.WriteFile(CommentPath, []byte("[]"), 0777)
-		bData, err := ioutil.ReadFile(CommentPath)
 	}
+
+	bData, err := ioutil.ReadFile(CommentPath)
 	if err != nil {
 		return err
 	}
@@ -207,4 +208,60 @@ func (c Comment) Save(VideoID string) error {
 
 	return CommentSave(comments, VideoID)
 
+}
+
+//Get read tag.json
+func (t *Tag) Get() (err error) {
+	var data Tag
+	if !FileExistance(TagFile) {
+		ioutil.WriteFile(TagFile, []byte("{}"), 0777)
+	}
+
+	bData, err := ioutil.ReadFile(TagFile)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(bData, &data)
+
+	t = &data
+
+	return
+}
+
+//Save save tag data
+func (t Tag) Save() (err error) {
+	bData, err := json.MarshalIndent(t, "", "    ")
+	if err != nil {
+		return
+	}
+
+	return ioutil.WriteFile(TagFile, bData, 0777)
+}
+
+//Append append tag
+func (t Tag) Append(video Video) Tag {
+	for _, key := range video.Tags {
+		t[key] = append(t[key], video.Video)
+	}
+	return t
+}
+
+//Remove remove one video from tag list
+func (t Tag) Remove(video Video) (T Tag, err error) {
+
+	for _, tag := range video.Tags {
+		var vs []string
+		for _, v := range t[tag] {
+			if v != video.Video {
+				vs = append(vs, video.Video)
+			}
+		}
+
+		t[tag] = vs
+	}
+
+	T = t
+
+	return
 }

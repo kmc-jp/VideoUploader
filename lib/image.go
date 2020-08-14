@@ -3,6 +3,8 @@ package lib
 import (
 	"bytes"
 	"image"
+	_ "image/gif"
+	_ "image/jpeg"
 	"image/png"
 	"io"
 	"os"
@@ -11,7 +13,10 @@ import (
 )
 
 //ImageSizer make image thumbnail
-func ImageSizer(size int, src io.Reader) (io.Reader, error) {
+func ImageSizer(size int, r io.Reader) (io.Reader, error) {
+	var src = new(bytes.Buffer)
+	io.Copy(src, r)
+
 	var w = new(bytes.Buffer)
 
 	imgSrc, _, err := image.Decode(src)
@@ -39,7 +44,9 @@ func ImageSizer(size int, src io.Reader) (io.Reader, error) {
 }
 
 //ImageConverter converts image to png and export it to the file path
-func ImageConverter(src io.Reader, filepath string) error {
+func ImageConverter(r io.Reader, filepath string) error {
+	var src = new(bytes.Buffer)
+	io.Copy(src, r)
 	imgSrc, _, err := image.Decode(src)
 	if err != nil {
 		return err

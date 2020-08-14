@@ -3,6 +3,7 @@ package slack
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"../lib"
@@ -10,6 +11,9 @@ import (
 
 // Send message to slack
 func (w Webhook) Send() error {
+	if lib.Settings.SlackWebhook == "" {
+		return fmt.Errorf("Webhook not setuped")
+	}
 	bData, err := json.MarshalIndent(w, "", "    ")
 	if err != nil {
 		return err

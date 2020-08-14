@@ -1,15 +1,15 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"html/template"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 
 	"../lib"
+	"../slack"
 )
 
 //SettingsPageHandle hadle settings page
@@ -69,6 +69,7 @@ func SetUserIcon(w http.ResponseWriter, r *http.Request) {
 	iconF, _, err := r.FormFile("icon")
 	if err != nil {
 		lib.Logger(err)
+		slack.SendError(err)
 		getQuery["Error"] = "IconNotFound"
 		w.Header().Set("Location", "index.up"+getQuery.Encode())
 		w.WriteHeader(http.StatusTemporaryRedirect)
@@ -90,13 +91,25 @@ func SetUserIcon(w http.ResponseWriter, r *http.Request) {
 		reader, err := lib.ImageSizer(IconSize, iconF)
 		if err != nil {
 			lib.Logger(err)
+			slack.SendError(err)
 			getQuery["Error"] = "ResizeError"
 			w.Header().Set("Location", "index.up"+getQuery.Encode())
 			w.WriteHeader(http.StatusTemporaryRedirect)
 			return
 		}
 
-		ioutil.WriteFile(filepath.Join("Usericon", user.Name+".png"), bufio.NewScanner(reader).Bytes(), 0777)
+		f, err := os.Create(filepath.Join("Usericon", user.Name+".png"))
+		if err != nil {
+			lib.Logger(err)
+			slack.SendError(err)
+			getQuery["Error"] = "ThumbWriteError"
+			w.Header().Set("Location", "index.up"+getQuery.Encode())
+			w.WriteHeader(http.StatusTemporaryRedirect)
+			return
+		}
+		defer f.Close()
+
+		io.Copy(f, reader)
 	}
 
 	user.Icon = filepath.Join("Usericon", user.Name+".png")
@@ -104,6 +117,7 @@ func SetUserIcon(w http.ResponseWriter, r *http.Request) {
 	err = user.Update()
 	if err != nil {
 		lib.Logger(err)
+		slack.SendError(err)
 		getQuery["Error"] = "UserDataUpdateError"
 		w.Header().Set("Location", "index.up"+getQuery.Encode())
 		w.WriteHeader(http.StatusTemporaryRedirect)

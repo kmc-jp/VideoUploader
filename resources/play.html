@@ -13,7 +13,7 @@
 
 <div class="desktop">
     <div class="card" id="other">
-        <h5 class="card-header">Other Videos</h5>
+        <h5 class="card-header">User Videos</h5>
         <div>
             <table class="play">
                 {{range $i, $vid := .User.Video}}
@@ -124,9 +124,6 @@
                     <p>投稿先のチャンネルを入力してください</p>
                     <img src="Videos/{{.Video.Thumb}}" style="width: 200px;height: 200px;object-fit: contain;"><br>
                     <input type="text" name="Channel" class="form-control" placeholder="例：#tk-memo_777"></input>
-                    <a href="javascript:HideSlackMenu();">
-                        <button type="button" class="btn btn-secondary">取消</button>
-                    </a>
 
                     <input type="hidden" name="Action" value="SendSlack">
                     <input type="hidden" name="User" value="{{.Video.User}}">
@@ -140,10 +137,10 @@
         </div>
     </div>
     <div class="card" id="other">
-        <a href="javascript:ToggleDisplayDetails('other_videos');">
-            <h5 class="card-header">Other Videos</h5>
+        <a href="javascript:ToggleDisplayDetails('user_videos');">
+            <h5 class="card-header">User Videos</h5>
         </a>
-        <div id="other_videos">
+        <div id="user_videos">
             <table class="play">
                 {{range $i, $vid := .User.Video}}
                 <tr>

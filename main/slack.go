@@ -39,6 +39,7 @@ func SendSlack(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		getQuery["Error"] = "SendSlack"
 		lib.Logger(err)
+		slack.SendError(err)
 		w.Header().Set("Location", "index.up"+getQuery.Encode())
 		w.WriteHeader(http.StatusTemporaryRedirect)
 		return
@@ -76,6 +77,7 @@ func SetSlackChannel(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		getQuery["Error"] = "SetChannel"
 		lib.Logger(err)
+		slack.SendError(err)
 		w.Header().Set("Location", "index.up"+getQuery.Encode())
 		w.WriteHeader(http.StatusTemporaryRedirect)
 		return

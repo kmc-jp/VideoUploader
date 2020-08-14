@@ -70,6 +70,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	case "Setchannel":
 		SetSlackChannel(w, r)
 		return
+	case "SearchTags":
 	}
 
 	//Handle showing page second

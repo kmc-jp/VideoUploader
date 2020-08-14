@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"../lib"
+	"../slack"
 )
 
 //UploadHandle handle uploaded video file
@@ -38,6 +39,7 @@ func UploadHandle(w http.ResponseWriter, r *http.Request) {
 	video, videoH, err := r.FormFile("video")
 	if err != nil {
 		lib.Logger(err)
+		slack.SendError(err)
 		lib.Progress(newData, lib.Status{Error: fmt.Sprintf("%s", err.Error())})
 		lib.TmpClear(newData.Video)
 		getQuery["Error"] = "UploadError"
@@ -51,6 +53,11 @@ func UploadHandle(w http.ResponseWriter, r *http.Request) {
 		thumbB = true
 	}
 
+	// タグデータを変数に格納
+	var tags = lib.SplitTags(r.FormValue("tag"))
+	tags = lib.TrimSpaces(tags)
+
+	newData.Tags = tags
 	newData.Video = lib.MakeSuitName() + Extension
 	newData.Time = time.Now()
 	newData.User = user.Name
@@ -72,11 +79,21 @@ func UploadHandle(w http.ResponseWriter, r *http.Request) {
 	if err = user.WriteAll(); err != nil {
 		fmt.Fprintf(w, "%s", err.Error())
 		lib.Logger(err)
+		slack.SendError(err)
+		return
+	}
+
+	//export taglist
+	if err = lib.TagVideoAppend(newData); err != nil {
+		fmt.Fprintf(w, "%s", err.Error())
+		lib.Logger(err)
+		slack.SendError(err)
 		return
 	}
 
 	// 一時領域にディレクトリ作成
-	os.MkdirAll(filepath.Join("tmp", newData.Video), 0777)
+	os.Mkdir(filepath.Join("tmp"), 0777)
+	os.Mkdir(filepath.Join("tmp", newData.Video), 0777)
 
 	// 動画データを一時領域に格納
 	lib.Progress(newData, lib.Status{Phase: "exporting"})
@@ -90,6 +107,7 @@ func UploadHandle(w http.ResponseWriter, r *http.Request) {
 
 	if _, err = io.Copy(file, video); err != nil {
 		lib.Logger(err)
+		slack.SendError(err)
 		lib.Progress(newData, lib.Status{Error: fmt.Sprintf("%s", err.Error())})
 		return
 	}
@@ -100,7 +118,7 @@ func UploadHandle(w http.ResponseWriter, r *http.Request) {
 	lib.Progress(newData, lib.Status{Phase: "saving thumbnail"})
 
 	if thumbB {
-		if err := lib.ImageConverter(thumb, filepath.Join("Videos", newData.Video+".png")); err != nil {
+		if err := lib.ImageConverter(thumb, filepath.Join("Videos", newData.Video, newData.Thumb)); err != nil {
 			thumbB = false
 			goto next
 		}

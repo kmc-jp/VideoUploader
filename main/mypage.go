@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"../lib"
+	"../slack"
 )
 
 //MyPageHandle handle my page
@@ -75,6 +76,7 @@ func UpdateVideoInfo(w http.ResponseWriter, r *http.Request) {
 	if e := user.Get(os.Getenv("REMOTE_USER")); e != nil {
 		getQuery["Error"] = "NotFound"
 		lib.Logger(e)
+		slack.SendError(e)
 		w.Header().Set("Location", "index.up"+getQuery.Encode())
 		w.WriteHeader(http.StatusTemporaryRedirect)
 		return
@@ -98,11 +100,13 @@ func UpdateVideoInfo(w http.ResponseWriter, r *http.Request) {
 		filet, err := os.Create(filepath.Join("tmp", filepath.Base(strings.ReplaceAll(thumbH.Filename, "..", "_"))))
 		if err != nil {
 			lib.Logger(err)
+			slack.SendError(err)
 			return
 		}
 
 		if _, err = io.Copy(filet, thumb); err != nil {
 			lib.Logger(err)
+			slack.SendError(err)
 			return
 		}
 
@@ -110,6 +114,7 @@ func UpdateVideoInfo(w http.ResponseWriter, r *http.Request) {
 
 		if err := lib.ImageConverter(thumb, filepath.Join("Videos", video.Video+".png")); err != nil {
 			lib.Logger(err)
+			slack.SendError(err)
 			return
 		}
 
@@ -128,9 +133,26 @@ func UpdateVideoInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}()
 
+	//update tags
+	func() {
+		var tags = lib.SplitTags(r.FormValue("tag"))
+		if len(tags) == 0 {
+			return
+		}
+		if err := lib.TagUpdate(video, tags); err != nil {
+			lib.Logger(err)
+			slack.SendError(err)
+
+			return
+		}
+		video.Tags = tags
+
+	}()
+
 	var err = video.Update()
 	if err != nil {
 		lib.Logger(err)
+		slack.SendError(err)
 		getQuery["Error"] = "UpdateError"
 		w.Header().Set("Location", "index.up"+getQuery.Encode())
 		w.WriteHeader(http.StatusTemporaryRedirect)

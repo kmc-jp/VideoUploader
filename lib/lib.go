@@ -19,6 +19,8 @@ var (
 	UserInfoFile string
 	// AllVideosFile put path to allVideos.json
 	AllVideosFile string
+	//TagFile put path to tags.json
+	TagFile string
 
 	//Settings put setting data
 	Settings Setting
@@ -35,6 +37,7 @@ func init() {
 
 	UserInfoFile = filepath.Join("User", "userinfo.json")
 	AllVideosFile = filepath.Join("User", "allVideos.json")
+	TagFile = filepath.Join("tags.json")
 }
 
 //MakeRandStr returns ramdom string (length n)
@@ -87,7 +90,7 @@ func TmpClear(videoName string) error {
 	if err != nil {
 		return err
 	}
-	return os.Mkdir(filepath.Join("tmp"), 0777)
+	return nil
 }
 
 //Logger exports put err to log.txt
@@ -110,6 +113,7 @@ func Logger(err error) error {
 //Progress export uploading status
 func Progress(video Video, phase Status) {
 	video.Status = phase
+
 	video.Update()
 
 	return
