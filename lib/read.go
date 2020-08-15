@@ -58,14 +58,3 @@ func ReadComments(VideoID string) (c []Comment, err error) {
 	return
 }
 
-//ReadTag read tag.json
-func ReadTag() (res Tag, err error) {
-	bData, err := ioutil.ReadFile(TagFile)
-	if err != nil {
-		return
-	}
-
-	err = json.Unmarshal(bData, &res)
-
-	return
-}

@@ -4,7 +4,7 @@
 <div>
     <div class="card">
         <h5 class="card-header">{{.Header.UserName}}のお部屋</h5>
-        <div class="card-body">
+        <div class="card-body" id="my_videos">
             <table class="nb">
                 {{range $i, $vid := .Video}}
                 {{if ne $vid.Status.Error ""}}
@@ -48,7 +48,7 @@
                 </tr>
                 {{else if ne $vid.Status.Phase ""}}
                 <!-- まだエンコード中の場合 -->
-                <tr>
+                <tr id="encode_top_{{$i}}">
                     <td rowspan="4">
                         <img src="static/icon/movie.png" class="video">
                     </td>
@@ -56,12 +56,12 @@
                         <small class="text-muted">投稿日時：{{$vid.Time.Format "2006年1月2日15時04分"}}</small>
                     </td>
                 </tr>
-                <tr>
+                <tr id="encode_top_{{$i}}">
                     <td rowspan="3">
                         <h6>{{$vid.Title}}</h6>
                     </td>
                 </tr>
-                <tr>
+                <tr id="encode_mid_{{$i}}">
                     <td rowspan="2">
                         <img src="static/icon/edit.png" style="height: 30px;">
                     </td>
@@ -73,15 +73,15 @@
                     </td>
                 </tr>
                 <tr></tr>
-                <tr class="status">
+                <tr class="status" id="encode_bottom_{{$i}}">
                     <td>
                         <img src="static/icon/loading.gif" class="video" style="height:30px; width: 30px;">
                     </td>
                     <td>
-                        <p>処理中……
+                        <p>処理中……</p>
                     </td>
                     <td>
-                        現在:{{$vid.Status.Phase}}</p>
+                        <p>現在:{{$vid.Status.Phase}}</p>
                     </td>
                     <td>
                         最新の状態を取得するにはページを更新してください。
@@ -124,8 +124,8 @@
                         </a>
                     </td>
                     <td rowspan=" 2">
-                        <a href="javascript:DeleteConfirm('{{$vid.Title}}','{{$vid.Video}}');"><img
-                                src="static/icon/delete.png" style="height: 30px;"></a>
+                        <a href="javascript:DeleteConfirm('{{$vid.Title}}','{{$vid.Video}}');">
+                            <img src="static/icon/delete.png" style="height: 30px;"></a>
                     </td>
                 </tr>
                 <tr></tr>
@@ -210,7 +210,7 @@
         reader.readAsDataURL(file);
     }, false);
 
-    setInterval("ObjectPos('edit');ObjectPos('slack');ObjectPos('delete');", 300);
+    setInterval("ObjectPos('edit');ObjectPos('slack');ObjectPos('delete');", 100);
 </script>
 {{template "footer"}}
 {{end}}

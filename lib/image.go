@@ -2,6 +2,7 @@ package lib
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -47,12 +48,17 @@ func ImageSizer(size int, r io.Reader) (io.Reader, error) {
 func ImageConverter(r io.Reader, filepath string) error {
 	var src = new(bytes.Buffer)
 	io.Copy(src, r)
+
 	imgSrc, _, err := image.Decode(src)
 	if err != nil {
 		return err
 	}
 
 	rctSrc := imgSrc.Bounds()
+
+	if rctSrc.Dx() < 30 || rctSrc.Dy() < 30 {
+		return fmt.Errorf("Too small image, each of the image side size must be larger than 30 px")
+	}
 
 	var imgDst *image.RGBA
 	imgDst = image.NewRGBA(image.Rect(0, 0, rctSrc.Dx(), rctSrc.Dy()))
@@ -63,6 +69,7 @@ func ImageConverter(r io.Reader, filepath string) error {
 	if err != nil {
 		return err
 	}
+	defer dst.Close()
 
 	if err := png.Encode(dst, imgDst); err != nil {
 		dst.Close()
@@ -71,9 +78,7 @@ func ImageConverter(r io.Reader, filepath string) error {
 
 	dst.Close()
 
-	if err = os.Chmod(filepath, 0777); err != nil {
-		return err
-	}
+	os.Chmod(filepath, 0777)
 
 	return nil
 }

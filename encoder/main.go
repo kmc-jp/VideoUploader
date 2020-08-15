@@ -55,10 +55,8 @@ func WatchTmpDir() (err error) {
 			continue
 		}
 
-		if err := Encode(video); err != nil {
-			lib.Logger(err)
-			slack.SendError(err)
-		}
+		Encode(video)
+
 	}
 	return
 
@@ -77,7 +75,7 @@ func Encode(newData lib.Video) (err error) {
 			lib.Logger(fmt.Errorf("Encode:%s", err.Error()))
 			slack.SendError(fmt.Errorf("Encode:%s", err.Error()))
 			lib.Progress(newData, lib.Status{Error: fmt.Sprintf("Encode:\n%s\n", err.Error())})
-			return err
+			return nil
 		}
 		for _, f := range files {
 			name, _ := lib.FindExtension(f.Name())
@@ -94,77 +92,75 @@ func Encode(newData lib.Video) (err error) {
 
 	lib.Progress(newData, lib.Status{Phase: "encoding"})
 
-	err = exec.Command(
+	out, err := exec.Command(
 		lib.Settings.FFmpeg,
 		"-i", filepath.Join("tmp", newData.Video, videoName),
 		filepath.Join("Videos", newData.Video),
-	).Run()
+	).CombinedOutput()
 
 	if err != nil {
-		lib.Logger(fmt.Errorf("Encode:%s", err.Error()))
-		slack.SendError(fmt.Errorf("Encode:%s", err.Error()))
+		lib.Logger(fmt.Errorf("Encode:%s\nFFmpegState:%s", err.Error(), out))
+		slack.SendError(fmt.Errorf("Encode:%s\nFFmpegState:%s", err.Error(), out))
 		lib.Progress(newData, lib.Status{Error: fmt.Sprintf("Encode:\n%s\n", err.Error())})
 		lib.TmpClear(newData.Video)
-
-		return
+		return nil
 	}
 
 	lib.Progress(newData, lib.Status{Phase: "generating thumbnail"})
 
-	if !lib.FileExistance(filepath.Join("Videos", newData.Video, newData.Thumb)) {
-		out, err := exec.Command(lib.Settings.FFprobe, filepath.Join("Videos", newData.Video)).CombinedOutput()
+	if !lib.FileExistance(filepath.Join("Videos", newData.Thumb)) {
+		out, err = exec.Command(lib.Settings.FFprobe, filepath.Join("Videos", newData.Video)).CombinedOutput()
 		if err != nil {
-			lib.Logger(fmt.Errorf("Encode:%s", err.Error()))
-			slack.SendError(fmt.Errorf("Encode:%s", err.Error()))
+			lib.Logger(fmt.Errorf("Encode:%s\nFFproveState:%s", err.Error(), out))
+			slack.SendError(fmt.Errorf("Encode:%s\nFFproveState:%s", err.Error(), out))
 			lib.Progress(newData, lib.Status{Error: fmt.Sprintf("Encode:\n%s\n", err.Error())})
 
 			os.Remove(filepath.Join("Videos", newData.Video))
 			lib.TmpClear(newData.Video)
 
-			return err
+			return nil
 		}
 		t, err := getffTimeStr(out)
 		if err != nil {
-			lib.Logger(fmt.Errorf("Encode:%s", err.Error()))
-			slack.SendError(fmt.Errorf("Encode:%s", err.Error()))
+			lib.Logger(fmt.Errorf("Encode:%s\nFFproveState:%s", err.Error(), out))
+			slack.SendError(fmt.Errorf("Encode:%s\nFFproveState:%s", err.Error(), out))
 			lib.Progress(newData, lib.Status{Error: fmt.Sprintf("Encode:\n%s\n", err.Error())})
 			os.Remove(filepath.Join("Videos", newData.Video))
 			lib.TmpClear(newData.Video)
-			return err
+			return nil
 		}
 		if t[2] == "00" && t[1] == "00" {
-			lib.Logger(fmt.Errorf("Encode:%s", err.Error()))
-			slack.SendError(fmt.Errorf("Encode:%s", err.Error()))
+			lib.Logger(fmt.Errorf("Encode:%s\nFFproveState:%s", err.Error(), out))
+			slack.SendError(fmt.Errorf("Encode:%s\nFFproveState:%s\ntime%#v", err.Error(), out, t))
 			lib.Progress(newData, lib.Status{Error: fmt.Sprintf("Encode:\n%s\n", err.Error())})
-
 			lib.TmpClear(newData.Video)
 
-			return err
+			return nil
 		}
 
-		err = exec.Command(
+		out, err = exec.Command(
 			lib.Settings.FFmpeg, "-i", filepath.Join("tmp", newData.Video, videoName),
 			"-ss", t[2],
 			"-vframes", "1",
 			"-filter:v",
 			"scale=360:-1",
 			filepath.Join("Videos", newData.Video+".png"),
-		).Run()
+		).CombinedOutput()
 
 		if err != nil {
-			lib.Logger(fmt.Errorf("Encode:%s", err.Error()))
-			slack.SendError(fmt.Errorf("Encode:%s", err.Error()))
+			lib.Logger(fmt.Errorf("Encode:%s\nFFmpegState:%s", err.Error(), out))
+			slack.SendError(fmt.Errorf("Encode:%s\nFFmpegState:%s", err.Error(), out))
 			lib.Progress(newData, lib.Status{Error: fmt.Sprintf("Encode:\n%s\n", err.Error())})
 			os.Remove(filepath.Join("Videos", newData.Video))
 			lib.TmpClear(newData.Video)
-			return err
+			return nil
 		}
 
 	}
 
 	lib.TmpClear(newData.Video)
 	lib.Progress(newData, lib.Status{})
-	return
+	return nil
 }
 
 func getffTimeStr(out []byte) ([]string, error) {

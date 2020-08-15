@@ -73,9 +73,6 @@
                     <p>投稿先のチャンネルを入力してください</p>
                     <img src="Videos/{{.Video.Thumb}}" style="width: 200px;height: 200px;object-fit: contain;"><br>
                     <input type="text" name="Channel" class="form-control" placeholder="例：#tk-memo_777"></input>
-                    <a href="javascript:HideSlackMenu();">
-                        <button type="button" class="btn btn-secondary">取消</button>
-                    </a>
 
                     <input type="hidden" name="Action" value="SendSlack">
                     <input type="hidden" name="User" value="{{.Video.User}}">
@@ -176,7 +173,7 @@
         <a href="javascript:ToggleDisplayDetails('comment');">
             <h5 class="card-header">Comments</h5>
         </a>
-        <div id="comment">
+        <div id="comment" style="display: unset;">
             <div id="comment_output">
                 <form action="#" onsubmit=" SendComment('{{.Video.Video}}');return false;">
                     <div class=" input-group mb-3">
@@ -198,8 +195,9 @@
         </div>
         <script>
             window.onload = function () {
-                GetComments("{{.Video.Video}}");
+                GetComments("{{.Video.Video}}", "init");
             };
+            setInterval("GetComments('{{.Video.Video}}', '');", 1000)
         </script>
 
     </div>

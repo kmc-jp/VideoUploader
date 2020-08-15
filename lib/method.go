@@ -41,7 +41,7 @@ func (u *User) WriteAll() error {
 		V = append([]Video{u.Video[0]}, V[0:]...)
 	}
 
-	bData, err = json.Marshal(V)
+	bData, err = json.MarshalIndent(V, "", "    ")
 	err = ioutil.WriteFile(AllVideosFile, bData, 0777)
 	if err != nil {
 		return err
@@ -58,7 +58,7 @@ func (u *User) WriteAll() error {
 
 	data[u.Name] = *u
 
-	bData, err = json.Marshal(data)
+	bData, err = json.MarshalIndent(data, "", "    ")
 	if err != nil {
 		return err
 	}
@@ -98,6 +98,9 @@ func (v Video) Update() (err error) {
 		switch {
 		case v.Title != "":
 			video.Title = v.Title
+			fallthrough
+		case len(v.Tags) > 0:
+			video.Tags = v.Tags
 			fallthrough
 		case v.Status.Phase != "":
 			video.Status.Phase = v.Status.Phase
@@ -159,6 +162,23 @@ func (v Video) Update() (err error) {
 	return nil
 }
 
+//TagAppend append video to tag list
+func (v Video) TagAppend() (err error) {
+	var AllTag Tag
+	err = AllTag.Get()
+	if err != nil {
+		return err
+	}
+
+	AllTag.Append(v)
+
+	err = AllTag.Save()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 //Update update userinfo.json
 func (u User) Update() error {
 
@@ -211,7 +231,7 @@ func (c Comment) Save(VideoID string) error {
 }
 
 //Get read tag.json
-func (t *Tag) Get() (err error) {
+func (tag *Tag) Get() (err error) {
 	var data Tag
 	if !FileExistance(TagFile) {
 		ioutil.WriteFile(TagFile, []byte("{}"), 0777)
@@ -224,14 +244,16 @@ func (t *Tag) Get() (err error) {
 
 	err = json.Unmarshal(bData, &data)
 
-	t = &data
-
+	tag = &data
+	if tag.Tag == nil {
+		tag.Tag = make(map[string][]string)
+	}
 	return
 }
 
 //Save save tag data
-func (t Tag) Save() (err error) {
-	bData, err := json.MarshalIndent(t, "", "    ")
+func (tag Tag) Save() (err error) {
+	bData, err := json.MarshalIndent(tag, "", "    ")
 	if err != nil {
 		return
 	}
@@ -240,28 +262,30 @@ func (t Tag) Save() (err error) {
 }
 
 //Append append tag
-func (t Tag) Append(video Video) Tag {
-	for _, key := range video.Tags {
-		t[key] = append(t[key], video.Video)
+func (tag *Tag) Append(video Video) {
+	if tag.Tag == nil {
+		tag.Tag = make(map[string][]string)
 	}
-	return t
+	for _, key := range video.Tags {
+		tag.Tag[key] = append(tag.Tag[key], video.Video)
+	}
 }
 
 //Remove remove one video from tag list
-func (t Tag) Remove(video Video) (T Tag, err error) {
-
-	for _, tag := range video.Tags {
+func (tag *Tag) Remove(video Video) (err error) {
+	if tag.Tag == nil {
+		return
+	}
+	for _, t := range video.Tags {
 		var vs []string
-		for _, v := range t[tag] {
+		for _, v := range tag.Tag[t] {
 			if v != video.Video {
 				vs = append(vs, video.Video)
 			}
 		}
 
-		t[tag] = vs
+		tag.Tag[t] = vs
 	}
-
-	T = t
 
 	return
 }

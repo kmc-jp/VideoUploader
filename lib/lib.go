@@ -35,6 +35,8 @@ func init() {
 	}
 	json.Unmarshal(bytes, &Settings)
 
+	rand.Seed(time.Now().UnixNano())
+
 	UserInfoFile = filepath.Join("User", "userinfo.json")
 	AllVideosFile = filepath.Join("User", "allVideos.json")
 	TagFile = filepath.Join("tags.json")
@@ -95,6 +97,7 @@ func TmpClear(videoName string) error {
 
 //Logger exports put err to log.txt
 func Logger(err error) error {
+
 	if !FileExistance("log.txt") {
 		ioutil.WriteFile("log.txt", []byte{}, 0777)
 	}
@@ -103,7 +106,7 @@ func Logger(err error) error {
 		return err
 	}
 
-	bData = bytes.Join([][]byte{[]byte(fmt.Sprintf("%s: %s\n", time.Now().Format(time.Stamp), err.Error())), bData}, []byte(""))
+	bData = bytes.Join([][]byte{[]byte(fmt.Sprintf("%s: %s\nUser:%s", time.Now().Format(time.Stamp), err.Error(), os.Getenv("REMOTE_USER"))), bData}, []byte(""))
 
 	e = ioutil.WriteFile("log.txt", bData, 0777)
 

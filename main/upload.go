@@ -53,11 +53,7 @@ func UploadHandle(w http.ResponseWriter, r *http.Request) {
 		thumbB = true
 	}
 
-	// タグデータを変数に格納
-	var tags = lib.SplitTags(r.FormValue("tag"))
-	tags = lib.TrimSpaces(tags)
-
-	newData.Tags = tags
+	newData.Tags = lib.SplitTags(r.FormValue("tag"))
 	newData.Video = lib.MakeSuitName() + Extension
 	newData.Time = time.Now()
 	newData.User = user.Name
@@ -84,7 +80,7 @@ func UploadHandle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//export taglist
-	if err = lib.TagVideoAppend(newData); err != nil {
+	if err = newData.TagAppend(); err != nil {
 		fmt.Fprintf(w, "%s", err.Error())
 		lib.Logger(err)
 		slack.SendError(err)
@@ -118,7 +114,9 @@ func UploadHandle(w http.ResponseWriter, r *http.Request) {
 	lib.Progress(newData, lib.Status{Phase: "saving thumbnail"})
 
 	if thumbB {
-		if err := lib.ImageConverter(thumb, filepath.Join("Videos", newData.Video, newData.Thumb)); err != nil {
+		if err := lib.ImageConverter(thumb, filepath.Join("Videos", newData.Thumb)); err != nil {
+			lib.Logger(err)
+			slack.SendError(err)
 			thumbB = false
 			goto next
 		}

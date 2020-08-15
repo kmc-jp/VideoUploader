@@ -3,6 +3,7 @@ package slack
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"../lib"
@@ -83,6 +84,10 @@ func SendError(e error) {
 		Channel:  lib.Settings.ErrorChannel,
 		UserName: "VideoUploader -ErrorNotifier- ",
 		Attachments: []Attachment{
+			{
+				Title: "該当ユーザ",
+				Text:  os.Getenv("REMOTE_USER"),
+			},
 			{
 				Title: "問題の内容",
 				Text:  fmt.Sprintf("%s", e.Error()),

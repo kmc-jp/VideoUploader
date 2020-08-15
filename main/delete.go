@@ -37,9 +37,21 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 
 	var videoData = lib.SearchVideo(user.Video, r.URL.Query().Get("Video"))
 
+	err := lib.TagRemove(videoData)
+	if err != nil {
+		getQuery["Error"] = "TagRemoveError"
+		lib.Logger(err)
+		slack.SendError(err)
+		w.Header().Set("Location", "index.up"+getQuery.Encode())
+		w.WriteHeader(http.StatusTemporaryRedirect)
+		return
+	}
+
 	var D func(V []lib.Video) []lib.Video = func(V []lib.Video) []lib.Video {
 		var video = lib.SearchVideo(V, r.URL.Query().Get("Video"))
 		if video.Video == "" {
+			lib.Logger(err)
+			slack.SendError(err)
 			getQuery["Error"] = "NotFound"
 			w.Header().Set("Location", "index.up"+getQuery.Encode())
 			w.WriteHeader(http.StatusTemporaryRedirect)
@@ -48,6 +60,8 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 
 		v, err := lib.DeleteVideo(V, video)
 		if err != nil {
+			lib.Logger(err)
+			slack.SendError(err)
 			getQuery["Error"] = "DeleteError"
 			w.Header().Set("Location", "index.up"+getQuery.Encode())
 			w.WriteHeader(http.StatusTemporaryRedirect)

@@ -1,11 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
-	"io"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -97,21 +98,6 @@ func UpdateVideoInfo(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		filet, err := os.Create(filepath.Join("tmp", filepath.Base(strings.ReplaceAll(thumbH.Filename, "..", "_"))))
-		if err != nil {
-			lib.Logger(err)
-			slack.SendError(err)
-			return
-		}
-
-		if _, err = io.Copy(filet, thumb); err != nil {
-			lib.Logger(err)
-			slack.SendError(err)
-			return
-		}
-
-		filet.Close()
-
 		if err := lib.ImageConverter(thumb, filepath.Join("Videos", video.Video+".png")); err != nil {
 			lib.Logger(err)
 			slack.SendError(err)
@@ -139,6 +125,7 @@ func UpdateVideoInfo(w http.ResponseWriter, r *http.Request) {
 		if len(tags) == 0 {
 			return
 		}
+
 		if err := lib.TagUpdate(video, tags); err != nil {
 			lib.Logger(err)
 			slack.SendError(err)
@@ -163,4 +150,69 @@ func UpdateVideoInfo(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Location", "index.up"+getQuery.Encode())
 	w.WriteHeader(http.StatusTemporaryRedirect)
+}
+
+//SendVideoStatus make json response of the video encoding status
+func SendVideoStatus(w http.ResponseWriter, r *http.Request) {
+	var S func(w http.ResponseWriter, status int) = func(w http.ResponseWriter, status int) {
+		res, _ := json.Marshal(Status{Status: status})
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(res)
+		return
+	}
+
+	var user lib.User
+
+	err := user.Get(os.Getenv("REMOTE_USER"))
+	if err != nil {
+		lib.Logger(err)
+		slack.SendError(err)
+		S(w, 500)
+		return
+	}
+
+	type ResVideo struct {
+		User  string   `json:"user"`
+		ID    string   `json:"id"`
+		Phase string   `json:"phase"`
+		Error string   `json:"error"`
+		Time  string   `json:"time"`
+		Title string   `json:"title"`
+		URL   string   `json:"url"`
+		Thumb string   `json:"thumb_url"`
+		Tag   []string `json:"tags"`
+	}
+
+	type Res struct {
+		Status int        `json:"status"`
+		Video  []ResVideo `json:"video"`
+	}
+
+	var vs []ResVideo
+	for _, v := range user.Video {
+		vs = append(vs,
+			ResVideo{
+				v.User,
+				v.Video,
+				v.Status.Phase,
+				v.Status.Error,
+				v.Time.Format("2006-01-02T15:04:05+09:00"),
+				v.Title,
+				path.Join("Videos", v.Video),
+				path.Join("Videos", v.Thumb),
+				v.Tags,
+			},
+		)
+	}
+
+	res, _ := json.Marshal(
+		Res{
+			Status: 200,
+			Video:  vs,
+		},
+	)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(res)
+	return
 }

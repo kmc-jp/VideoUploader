@@ -134,8 +134,6 @@ func ReadComment(w http.ResponseWriter, r *http.Request) {
 	cs, err := lib.ReadComments(VideoID)
 	if err != nil {
 		S(w, 500)
-		lib.Logger(err)
-		slack.SendError(err)
 		return
 	}
 

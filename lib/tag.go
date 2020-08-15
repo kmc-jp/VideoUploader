@@ -9,10 +9,10 @@ import (
 func SplitTags(str string) []string {
 	var strs = strings.Split(str, ",")
 	var res []string = make([]string, 0)
-
-	for _, s := range TrimSpaces(strs) {
+	for _, s := range strs {
 		res = append(res, TrimSpaces(strings.Split(s, " "))...)
 	}
+
 	return res
 }
 
@@ -20,11 +20,12 @@ func SplitTags(str string) []string {
 func TrimSpaces(strs []string) []string {
 	var tags = make(map[string]bool)
 	var res []string = make([]string, 0)
-	for i := 0; i < len(tags); i++ {
+	for i := 0; i < len(strs); i++ {
 		strs[i] = strings.TrimSpace(strings.ReplaceAll(strs[i], "\n", ""))
-		if _, ok := tags[strs[i]]; ok {
+		if _, ok := tags[strs[i]]; ok || strs[i] == "" {
 			continue
 		}
+
 		res = append(res, strs[i])
 		tags[strs[i]] = true
 	}
@@ -56,24 +57,6 @@ func TagMtoS(tags map[string]bool) []string {
 	return Res
 }
 
-//TagVideoAppend append video to tag list
-func TagVideoAppend(video Video) error {
-	var AllTag Tag
-	err := AllTag.Get()
-	if err != nil {
-		return err
-	}
-
-	AllTag = AllTag.Append(video)
-
-	err = AllTag.Save()
-	if err != nil {
-		return err
-	}
-	return nil
-
-}
-
 //TagUpdate update tag info
 func TagUpdate(oldVideo Video, newTags []string) error {
 	var AllTag Tag
@@ -82,12 +65,31 @@ func TagUpdate(oldVideo Video, newTags []string) error {
 		return err
 	}
 
-	AllTag.Remove(oldVideo)
+	err = AllTag.Remove(oldVideo)
+	if err != nil {
+		return err
+	}
 
 	oldVideo.Tags = newTags
 
-	AllTag = AllTag.Append(oldVideo)
+	AllTag.Append(oldVideo)
 
 	return AllTag.Save()
 
+}
+
+//TagRemove remove put video from tag list
+func TagRemove(oldVideo Video) error {
+	var AllTag Tag
+	err := AllTag.Get()
+	if err != nil {
+		return err
+	}
+
+	err = AllTag.Remove(oldVideo)
+	if err != nil {
+		return err
+	}
+
+	return AllTag.Save()
 }

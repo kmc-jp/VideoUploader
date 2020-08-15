@@ -70,6 +70,9 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	case "Setchannel":
 		SetSlackChannel(w, r)
 		return
+	case "VideoStatus":
+		SendVideoStatus(w, r)
+		return
 	case "SearchTags":
 	}
 
@@ -136,6 +139,9 @@ func ErrorHandle(err string) string {
 		return "Slackへの送信に失敗しました。改善しない場合は管理者に連絡してください。"
 	case "SetChannel":
 		return "Slackチャンネル設定の書き込みに失敗しました。しばらくしても改善しない場合は管理者に連絡してください。"
+	case "TagRemoveError":
+		return "タグ情報の削除に失敗しました。"
 	}
+
 	return ""
 }

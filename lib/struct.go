@@ -46,4 +46,6 @@ type User struct {
 }
 
 //Tag put tag data
-type Tag map[string][]string
+type Tag struct {
+	Tag map[string][]string
+}
