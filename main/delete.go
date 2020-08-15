@@ -36,7 +36,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var VideoID = r.URL.Query().Get("Video")
-	if VideoID != "" {
+	if VideoID == "" {
 		getQuery["Error"] = "NotFound"
 		w.Header().Set("Location", "index.up"+getQuery.Encode())
 		w.WriteHeader(http.StatusTemporaryRedirect)
