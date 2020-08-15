@@ -35,7 +35,23 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var videoData = lib.SearchVideo(user.Video, r.URL.Query().Get("Video"))
+	var VideoID = r.URL.Query().Get("Video")
+	if VideoID != "" {
+		getQuery["Error"] = "NotFound"
+		w.Header().Set("Location", "index.up"+getQuery.Encode())
+		w.WriteHeader(http.StatusTemporaryRedirect)
+		return
+	}
+
+	var videoData = lib.SearchVideo(user.Video, VideoID)
+	if videoData.Video != VideoID {
+		getQuery["Error"] = "NotFound"
+		w.Header().Set("Location", "index.up"+getQuery.Encode())
+		w.WriteHeader(http.StatusTemporaryRedirect)
+		return
+	}
+
+	lib.CommentDeleteFile(VideoID)
 
 	err := lib.TagRemove(videoData)
 	if err != nil {

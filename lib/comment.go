@@ -3,6 +3,7 @@ package lib
 import (
 	"encoding/json"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 )
 
@@ -58,5 +59,11 @@ func CommentSave(comments []Comment, VideoID string) error {
 	}
 
 	return ioutil.WriteFile(CommentPath, bData, 0777)
+
+}
+
+// CommentDeleteFile delete comment file
+func CommentDeleteFile(VideoID string) error {
+	return os.Remove(CommentPath(VideoID))
 
 }

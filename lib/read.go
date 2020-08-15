@@ -57,4 +57,3 @@ func ReadComments(VideoID string) (c []Comment, err error) {
 
 	return
 }
-
