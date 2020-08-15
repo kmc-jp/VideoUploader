@@ -5,133 +5,7 @@
     <div class="card">
         <h5 class="card-header">{{.Header.UserName}}のお部屋</h5>
         <div class="card-body" id="my_videos">
-            <table class="nb">
-                {{range $i, $vid := .Video}}
-                {{if ne $vid.Status.Error ""}}
-                <!-- エラーが発生している場合 -->
-                <tr>
-                    <td rowspan="4">
-                        <img src="static/icon/movie.png" class="video">
-                    </td>
-                    <td rowspan="1">
-                        <small class="text-muted">投稿日時：{{$vid.Time.Format "2006年1月2日15時04分"}}</small>
-                    </td>
-                </tr>
-                <tr>
-                    <td rowspan="3">
-                        <h6>{{$vid.Title}}</h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td rowspan="2">
-                        <img src="static/icon/edit.png" style="height: 30px;">
-                    </td>
-                    <td rowspan="2">
-                        <img src="static/icon/slack.png" style="height: 30px;">
-                    </td>
-                    <td rowspan="2">
-                        <a href="javascript:DeleteConfirm('{{$vid.Title}}','{{$vid.Video}}');"><img
-                                src="static/icon/delete.png" style="height: 30px;"></a>
-                    </td>
-                </tr>
-                <tr></tr>
-                <tr>
-                    <td>
-                        <img src="static/icon/caution.png" class="video" style="height:30px; width: 30px;">
-                    </td>
-                    <td>
-                        <p>{{$vid.Status.Error}}</p>
-                    </td>
-                    <td>
-                        <p>動画のエンコード中にエラーが発生しました。</p>
-                    </td>
-                </tr>
-                {{else if ne $vid.Status.Phase ""}}
-                <!-- まだエンコード中の場合 -->
-                <tr id="encode_top_{{$i}}">
-                    <td rowspan="4">
-                        <img src="static/icon/movie.png" class="video">
-                    </td>
-                    <td rowspan="1">
-                        <small class="text-muted">投稿日時：{{$vid.Time.Format "2006年1月2日15時04分"}}</small>
-                    </td>
-                </tr>
-                <tr id="encode_top_{{$i}}">
-                    <td rowspan="3">
-                        <h6>{{$vid.Title}}</h6>
-                    </td>
-                </tr>
-                <tr id="encode_mid_{{$i}}">
-                    <td rowspan="2">
-                        <img src="static/icon/edit.png" style="height: 30px;">
-                    </td>
-                    <td rowspan="2">
-                        <img src="static/icon/slack.png" style="height: 30px;">
-                    </td>
-                    <td rowspan="2">
-                        <img src="static/icon/delete.png" style="height: 30px;">
-                    </td>
-                </tr>
-                <tr></tr>
-                <tr class="status" id="encode_bottom_{{$i}}">
-                    <td>
-                        <img src="static/icon/loading.gif" class="video" style="height:30px; width: 30px;">
-                    </td>
-                    <td>
-                        <p>処理中……</p>
-                    </td>
-                    <td>
-                        <p>現在:{{$vid.Status.Phase}}</p>
-                    </td>
-                    <td>
-                        最新の状態を取得するにはページを更新してください。
-                    </td>
-                </tr>
-                {{else}}
-                <!-- 通常 -->
-                <tr>
-                    <td rowspan="4">
-                        <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
-                            <img src="Videos/{{$vid.Thumb}}" class="video">
-                        </a>
-                    </td>
-                    <td rowspan="1">
-                        <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
-                            <small class="text-muted">投稿日時：{{$vid.Time.Format "2006年1月2日15時04分"}}</small>
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td rowspan="3">
-                        <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
-                            <h6>{{$vid.Title}}</h6>
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td rowspan="2">
-                        <a
-                            href="javascript:editPage('{{$vid.Title}}','{{$vid.User}}', '{{$vid.Video}}' , 'Videos/{{$vid.Thumb}}' );">
-                            <img src="static/icon/edit.png" style="height: 30px;">
-                        </a>
-                    </td>
-                    <td rowspan="2">
-                        <a
-                            href="javascript:SlackMenu('{{$vid.Title}}','{{$vid.User}}', '{{$vid.Video}}' , 'Videos/{{$vid.Thumb}}', 'MyPage' );">
-                            <span style="font-size: 30px; color: #4B4B4B;;">
-                                <i class="fab fa-slack"></i>
-                            </span>
-                        </a>
-                    </td>
-                    <td rowspan=" 2">
-                        <a href="javascript:DeleteConfirm('{{$vid.Title}}','{{$vid.Video}}');">
-                            <img src="static/icon/delete.png" style="height: 30px;"></a>
-                    </td>
-                </tr>
-                <tr></tr>
-                {{end}}
-                {{end}}
-            </table>
+
         </div>
     </div>
     <div id="edit" style="display: none;position:absolute;">
@@ -210,7 +84,11 @@
         reader.readAsDataURL(file);
     }, false);
 
+    window.onload = function () {
+        GetVideos("init");
+    };
     setInterval("ObjectPos('edit');ObjectPos('slack');ObjectPos('delete');", 100);
+    setInterval("GetVideos('')", 1000)
 </script>
 {{template "footer"}}
 {{end}}

@@ -278,12 +278,12 @@
             return
         }
 
-        let VideoList = getElementById("my_videos")
+        let VideoList = document.getElementById("my_videos")
 
         let Table = document.createElement("table");
         Table.className = "nb";
 
-        // エンコード中
+        // エラー
         for (let i = 0; i < videos.length; i++) {
             if (videos[i]["error"] != "") {
                 let TopRow = document.createElement("tr");
@@ -307,7 +307,7 @@
                     ImgData.rowSpan = 4;
                     TimeData.rowSpan = 1;
 
-                    Img.src = videos[i]["thumb_url"];
+                    Img.src = "static/icon/movie.png";
                     Img.className = "video";
 
                     ImgData.appendChild(Img);
@@ -329,6 +329,7 @@
                     TitleData.rowSpan = 2;
 
                     TitleData.appendChild(Title);
+                    MidRow.appendChild(TitleData);
                 }
 
                 // 三行目
@@ -428,7 +429,7 @@
                     ImgData.rowSpan = 4;
                     TimeData.rowSpan = 1;
 
-                    Img.src = videos[i]["thumb_url"];
+                    Img.src = Img.src = "static/icon/movie.png";;
                     Img.className = "video";
 
                     ImgData.appendChild(Img);
@@ -450,6 +451,7 @@
                     TitleData.rowSpan = 2;
 
                     TitleData.appendChild(Title);
+                    MidRow.appendChild(TitleData);
                 }
 
                 // 三行目
@@ -588,6 +590,8 @@
 
                     TitleData.rowSpan = 2;
                     TitleData.appendChild(TitleLink);
+
+                    MidRow.appendChild(TitleData);
                 }
 
                 // 三行目
@@ -620,7 +624,7 @@
                         + videos[i]["user"] + "','"
                         + videos[i]["id"] + "','"
                         + videos[i]["thumb_url"]
-                        + ", 'MyPage'');";
+                        + "', 'MyPage');";
 
                     SlackSpan.style.fontSize = "30px";
                     SlackSpan.style.color = "#4B4B4B";
@@ -629,7 +633,7 @@
 
                     DeleteLink.href = "javascript:DeleteConfirm('"
                         + videos[i]["title"] + "','"
-                        + videos[i]["id"] + ");";
+                        + videos[i]["id"] + "');";
 
                     DeleteIcon.src = "static/icon/delete.png";
                     DeleteIcon.style.height = "30px"
@@ -661,6 +665,7 @@
                 Table.appendChild(document.createElement("tr"));
             }
         }
+        VideoList.appendChild(Table)
 
         pre_video_list = videos
 
