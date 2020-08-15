@@ -557,8 +557,8 @@ function DisplayVideoList(videos) {
                 ImgData.rowSpan = 4;
                 TimeData.rowSpan = 1;
 
-                ImgVideoLink.href = videos[i]["url"];
-                TimeVideoLink.href = videos[i]["url"];
+                ImgVideoLink.href = "index.up?Page=Play&User=" + videos[i]["user"] + "&Video=" + videos[i]["id"];
+                TimeVideoLink.href = "index.up?Page=Play&User=" + videos[i]["user"] + "&Video=" + videos[i]["id"];
 
                 Img.src = videos[i]["thumb_url"];
                 Img.className = "video";
@@ -584,7 +584,7 @@ function DisplayVideoList(videos) {
                 Title.textContent = videos[i]["title"];
 
                 TitleLink.appendChild(Title);
-                TitleLink.href = videos[i]["url"];
+                TitleLink.href = "index.up?Page=Play&User=" + videos[i]["user"] + "&Video=" + videos[i]["id"];
 
                 TitleData.rowSpan = 2;
                 TitleData.appendChild(TitleLink);
