@@ -96,12 +96,24 @@ function GetSearchInfo() {
 
 }
 
+function encode(url) {
+    var elem = String(url).split("#")
+
+    var res_slice = [];
+
+    for (let i = 0; i < elem.length; i++) {
+        res_slice.push(encodeURI(elem[i]));
+    }
+
+    return res_slice.join("%23")
+}
+
 function GetSearchResult(Action, Keywords, SearchMode) {
 
     // サーバに送信
     var url = location.protocol + "//" + location.hostname + location.pathname
         + "?Action=" + Action
-        + "&Keywords=" + Keywords
+        + "&Keywords=" + String(encode(Keywords))
         + "&Mode=" + SearchMode;
 
     console.log(url);
