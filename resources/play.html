@@ -58,12 +58,12 @@
                         {{end}}
                         {{.User.Name}}
                     </a><br>
-                    タグ<bt>
-                        {{range $i, $tag := .Video.Tags}}
-                        <a href="index.up?Page=Tag&Tag={{$tag}}">
-                            <i class="fas fa-tag"></i> {{$tag}}
-                        </a>
-                        {{end}}
+                    タグ
+                    {{range $i, $tag := .Video.Tags}}
+                    <a href="index.up?Page=Tag&Tag={{$tag}}">
+                        <i class="fas fa-tag"></i> {{$tag}}
+                    </a>
+                    {{end}}
                 </div>
             </div>
         </div>
@@ -111,7 +111,12 @@
                         <img src="static/icon/user.png" class="icon"></img>
                         {{end}}
                         {{.User.Name}}
+                    </a><br>タグ
+                    {{range $i, $tag := .Video.Tags}}
+                    <a href="index.up?Page=Tag&Tag={{$tag}}">
+                        <i class="fas fa-tag"></i> {{$tag}}
                     </a>
+                    {{end}}
                 </div>
             </div>
         </div>
