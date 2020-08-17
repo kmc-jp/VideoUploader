@@ -57,7 +57,13 @@
                         <img src="static/icon/user.png" class="icon"></img>
                         {{end}}
                         {{.User.Name}}
-                    </a>
+                    </a><br>
+                    タグ<bt>
+                        {{range $i, $tag := .Video.Tags}}
+                        <a href="index.up?Page=Tag&Tag={{$tag}}">
+                            <i class="fas fa-tag"></i> {{$tag}}
+                        </a>
+                        {{end}}
                 </div>
             </div>
         </div>

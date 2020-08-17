@@ -43,9 +43,23 @@ type User struct {
 	Video []Video `json:"files"`
 	Icon  string  `json:"icon"`
 	Slack string
+	Time  time.Time `json:"time"`
 }
 
 //Tag put tag data
 type Tag struct {
 	Tag map[string][]string
+}
+
+// ResVideo put http response video data
+type ResVideo struct {
+	User  string   `json:"user"`
+	ID    string   `json:"id"`
+	Phase string   `json:"phase"`
+	Error string   `json:"error"`
+	Time  string   `json:"time"`
+	Title string   `json:"title"`
+	URL   string   `json:"url"`
+	Thumb string   `json:"thumb_url"`
+	Tag   []string `json:"tags"`
 }

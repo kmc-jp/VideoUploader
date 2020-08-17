@@ -27,6 +27,14 @@ type Index struct {
 	Video  []lib.Video
 }
 
+//Search put search objects
+type Search struct {
+	Header Header
+	Footer Footer
+	Tag    string
+	Video  []lib.Video
+}
+
 //Upload put upload page data
 type Upload struct {
 	Header Header

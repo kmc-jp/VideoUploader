@@ -21,7 +21,7 @@
                     <p>タグ</p>
                     <small>","もしくは" "で区切ることで、複数のタグが登録できます。</small>
                     <input type="text" name="tag" class="form-control" placeholder="例：まいらいふ"><br>
-                    <a href="javascript:HideEditWindow();">
+                    <a href="javascript:HideWindow('edit');">
                         <button type="button" id="cancel" class="btn btn-secondary">取消</button>
                     </a>
                     <input type="hidden" id="video_id" name="video_id">
@@ -35,7 +35,7 @@
             <h5 class="card-header" id="deleteHead">削除</h5>
             <div class="card-body">
                 <p id="delete_confirm_p">本当に削除しますか。</p>
-                <a href="javascript:HideDeleteWindow();">
+                <a href="javascript:HideWindow('delete');">
                     <button type="button" class="btn btn-secondary">取消</button>
                 </a>
                 <a href="index.up?Action=Delte" id="delete_button">
@@ -53,7 +53,7 @@
                     <p>投稿先のチャンネルを入力してください</p>
                     <img id="slack_thumb_preview" style="width: 200px;height: 200px;object-fit: contain;"><br>
                     <input type="text" name="Channel" class="form-control" placeholder="例：#tk-memo_777"></input>
-                    <a href="javascript:HideSlackMenu();">
+                    <a href="javascript:HideWindow('slack');">
                         <button type="button" id="cancel" class="btn btn-secondary">取消</button>
                     </a>
 

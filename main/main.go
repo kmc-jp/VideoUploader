@@ -74,10 +74,18 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		SendVideoStatus(w, r)
 		return
 	case "SearchTags":
+		SearchTags(w, r)
+		return
+	case "SearchVideos":
+		SearchVideos(w, r)
+		return
 	}
 
 	//Handle showing page second
 	switch r.URL.Query().Get("Page") {
+	case "Search":
+		SearchPageHandle(w, r)
+		return
 	case "Upload":
 		UploadPageHandle(w, r)
 		return
@@ -89,10 +97,16 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	case "Settings":
 		SettingsPageHandle(w, r)
+		return
 	case "Users":
 		ListPageHandle(w, r)
+		return
 	case "UserPage":
 		UserPageHandle(w, r)
+		return
+	case "Tag":
+		ShowTagPage(w, r)
+		return
 	default:
 		IndexPageHandle(w, r)
 		return

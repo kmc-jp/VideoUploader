@@ -32,8 +32,8 @@ func TrimSpaces(strs []string) []string {
 	return res
 }
 
-//TagStoM converts []tags to map[tag]bool
-func TagStoM(tags []string) map[string]bool {
+//StoM converts []tags to map[tag]bool
+func StoM(tags []string) map[string]bool {
 	var Res = make(map[string]bool)
 
 	for _, t := range tags {
@@ -42,8 +42,8 @@ func TagStoM(tags []string) map[string]bool {
 	return Res
 }
 
-//TagMtoS converts map[tag]bool to []tag
-func TagMtoS(tags map[string]bool) []string {
+//MtoS converts map[tag]bool to []tag
+func MtoS(tags map[string]bool) []string {
 	var Res []string = make([]string, 0)
 
 	for t, b := range tags {
@@ -60,19 +60,19 @@ func TagMtoS(tags map[string]bool) []string {
 //TagUpdate update tag info
 func TagUpdate(oldVideo Video, newTags []string) error {
 	var AllTag Tag
-	err := AllTag.Get()
+	AllTag, err := AllTag.Get()
 	if err != nil {
 		return err
 	}
 
-	err = AllTag.Remove(oldVideo)
+	AllTag, err = AllTag.Remove(oldVideo)
 	if err != nil {
 		return err
 	}
 
 	oldVideo.Tags = newTags
 
-	AllTag.Append(oldVideo)
+	AllTag = AllTag.Append(oldVideo)
 
 	return AllTag.Save()
 
@@ -81,15 +81,42 @@ func TagUpdate(oldVideo Video, newTags []string) error {
 //TagRemove remove put video from tag list
 func TagRemove(oldVideo Video) error {
 	var AllTag Tag
-	err := AllTag.Get()
+	AllTag, err := AllTag.Get()
 	if err != nil {
 		return err
 	}
 
-	err = AllTag.Remove(oldVideo)
+	AllTag, err = AllTag.Remove(oldVideo)
 	if err != nil {
 		return err
 	}
 
 	return AllTag.Save()
+}
+
+// VideoIDsToVideos return Video from VideoID
+func VideoIDsToVideos(VideoIDs []string) (ResVideo []Video, err error) {
+	AllVideos, err := ReadVideoData()
+	if err != nil {
+		return
+	}
+
+	var AllVideoMap = func(vs []Video) map[string]Video {
+		var Res = make(map[string]Video)
+		for _, v := range vs {
+			Res[v.Video] = v
+		}
+
+		return Res
+	}(AllVideos)
+
+	for _, video := range VideoIDs {
+		v, ok := AllVideoMap[video]
+		if !ok {
+			continue
+		}
+		ResVideo = append(ResVideo, v)
+	}
+
+	return ResVideo, nil
 }

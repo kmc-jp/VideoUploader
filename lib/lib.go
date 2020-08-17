@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -130,4 +131,37 @@ func VideoExistance(VideoID string) bool {
 	videos, _ := ReadVideoData()
 	video := SearchVideo(videos, VideoID)
 	return video.Video == VideoID
+}
+
+// VideosToResVideos converts Videos into ResVideos
+func VideosToResVideos(Video []Video) []ResVideo {
+	var vs []ResVideo = make([]ResVideo, 0)
+	for _, v := range Video {
+		vs = append(vs,
+			ResVideo{
+				User:  v.User,
+				ID:    v.Video,
+				Phase: v.Status.Phase,
+				Error: v.Status.Error,
+				Time:  v.Time.Format("2006-01-02T15:04:05+09:00"),
+				Title: v.Title,
+				URL:   path.Join("Videos", v.Video),
+				Thumb: path.Join("Videos", v.Thumb),
+				Tag:   v.Tags,
+			},
+		)
+	}
+	return vs
+}
+
+// ExcludeErrorAndPhaseVideos excludes videos under incomplete phase or having errors
+func ExcludeErrorAndPhaseVideos(Res []ResVideo) []ResVideo {
+	var vs []ResVideo = make([]ResVideo, 0)
+	for _, v := range Res {
+		if v.Error != "" || v.Phase != "" {
+			continue
+		}
+		vs = append(vs, v)
+	}
+	return vs
 }

@@ -1,0 +1,113 @@
+{{define "search"}}
+
+{{template "header" .Header}}
+<div class="card" id="search_top">
+    <h5 class="card-header">Search</h5>
+    <div class="card-body">
+        <form name="search_form" action="" onsubmit=" GetSearchInfo();return false;">
+            <table>
+                <tr>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" id="radio_tags" type="radio" name="Action"
+                                value="SearchTags" checked>
+                            <label class="form-check-label" for="radio_tags">
+                                タグ検索
+                            </label>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" id="radio_videos" type="radio" name="Action"
+                                value="SearchVideos">
+                            <label class="form-check-label" for="radio_videos">
+                                動画検索
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" id="radio_and" type="radio" name="Mode" value="or" checked>
+                            <label class="form-check-label" for="radio_and">
+                                OR検索
+                            </label>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" id="radio_or" type="radio" name="Mode" value="and">
+                            <label class="form-check-label" for="radio_or">
+                                AND検索
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" id="video_form" name="Keywords" placeholder="検索内容..."
+                    aria-label="VideoForm" aria-describedby="buon-addon2">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit" id="button-addon2">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <small>","もしくは" "で区切ることで、OR検索もしくはAND検索することができます。</small>
+        </form>
+    </div>
+    {{if ne .Tag ""}}
+
+    <div class="card">
+        <h5 class="card-header">検索結果</h5>
+        <div class="card-body" id="search_result">
+            <table class="nb">
+                {{range $i, $vid := .Video}}
+                {{if or (ne $vid.Status.Error "") (ne $vid.Status.Phase "")}}
+                {{else}}
+                <!-- 通常 -->
+                <tr>
+                    <td rowspan="4">
+                        <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                            <img src="Videos/{{$vid.Thumb}}" class="video">
+                        </a>
+                    </td>
+                    <td rowspan="1">
+                        <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                            <small class="text-muted">投稿日時：{{$vid.Time.Format "2006年1月2日15時04分"}}</small>
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td rowspan="3">
+                        <a href="index.up?Page=Play&User={{$vid.User}}&Video={{$vid.Video}}">
+                            <h6>{{$vid.Title}}</h6>
+                        </a>
+                    </td>
+
+                    <td rowspan="2">
+                        <a
+                            href="javascript:SlackMenu('{{$vid.Title}}','{{$vid.User}}', '{{$vid.Video}}' , 'Videos/{{$vid.Thumb}}', 'UserPage' );">
+                            <span style="font-size: 30px; color: #4B4B4B;;">
+                                <i class="fab fa-slack"></i>
+                            </span>
+                        </a>
+                    </td>
+
+
+                <tr></tr>
+                <tr></tr>
+                <tr></tr>
+                {{end}}
+                {{end}}
+            </table>
+        </div>
+    </div>
+    {{end}}
+</div>
+
+
+{{template "footer"}}
+{{end}}

@@ -6,9 +6,9 @@ import (
 	"html/template"
 	"net/http"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"../lib"
 	"../slack"
@@ -132,6 +132,7 @@ func UpdateVideoInfo(w http.ResponseWriter, r *http.Request) {
 
 			return
 		}
+
 		video.Tags = tags
 
 	}()
@@ -171,44 +172,23 @@ func SendVideoStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type ResVideo struct {
-		User  string   `json:"user"`
-		ID    string   `json:"id"`
-		Phase string   `json:"phase"`
-		Error string   `json:"error"`
-		Time  string   `json:"time"`
-		Title string   `json:"title"`
-		URL   string   `json:"url"`
-		Thumb string   `json:"thumb_url"`
-		Tag   []string `json:"tags"`
-	}
-
 	type Res struct {
-		Status int        `json:"status"`
-		Video  []ResVideo `json:"video"`
+		Status int            `json:"status"`
+		Time   string         `json:"time"`
+		Video  []lib.ResVideo `json:"video"`
 	}
 
-	var vs []ResVideo
-	for _, v := range user.Video {
-		vs = append(vs,
-			ResVideo{
-				v.User,
-				v.Video,
-				v.Status.Phase,
-				v.Status.Error,
-				v.Time.Format("2006-01-02T15:04:05+09:00"),
-				v.Title,
-				path.Join("Videos", v.Video),
-				path.Join("Videos", v.Thumb),
-				v.Tags,
-			},
-		)
+	var initTime time.Time
+	if user.Time.String() == initTime.String() {
+		user.Time = time.Now()
 	}
 
+	var vs []lib.ResVideo = lib.VideosToResVideos(user.Video)
 	res, _ := json.Marshal(
 		Res{
 			Status: 200,
 			Video:  vs,
+			Time:   user.Time.Format("2006-01-02T15:04:05+09:00"),
 		},
 	)
 

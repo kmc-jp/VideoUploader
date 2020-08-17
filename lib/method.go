@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"time"
 )
 
 //Get user data
@@ -47,6 +48,8 @@ func (u *User) WriteAll() error {
 		return err
 	}
 
+	u.Time = time.Now()
+
 	var data map[string]User
 
 	bData, err = ioutil.ReadFile(UserInfoFile)
@@ -69,6 +72,7 @@ func (u *User) WriteAll() error {
 //Write exports user data into userinfo.json
 func (u *User) Write() error {
 	var data map[string]User
+	u.Time = time.Now()
 
 	bData, err := ioutil.ReadFile(UserInfoFile)
 	if err != nil {
@@ -165,7 +169,7 @@ func (v Video) Update() (err error) {
 //TagAppend append video to tag list
 func (v Video) TagAppend() (err error) {
 	var AllTag Tag
-	err = AllTag.Get()
+	AllTag, err = AllTag.Get()
 	if err != nil {
 		return err
 	}
@@ -231,7 +235,7 @@ func (c Comment) Save(VideoID string) error {
 }
 
 //Get read tag.json
-func (tag *Tag) Get() (err error) {
+func (tag *Tag) Get() (t Tag, err error) {
 	var data Tag
 	if !FileExistance(TagFile) {
 		ioutil.WriteFile(TagFile, []byte("{}"), 0777)
@@ -248,7 +252,7 @@ func (tag *Tag) Get() (err error) {
 	if tag.Tag == nil {
 		tag.Tag = make(map[string][]string)
 	}
-	return
+	return *tag, err
 }
 
 //Save save tag data
@@ -262,30 +266,33 @@ func (tag Tag) Save() (err error) {
 }
 
 //Append append tag
-func (tag *Tag) Append(video Video) {
+func (tag *Tag) Append(video Video) Tag {
 	if tag.Tag == nil {
 		tag.Tag = make(map[string][]string)
 	}
 	for _, key := range video.Tags {
 		tag.Tag[key] = append(tag.Tag[key], video.Video)
 	}
+
+	return *tag
 }
 
 //Remove remove one video from tag list
-func (tag *Tag) Remove(video Video) (err error) {
+func (tag *Tag) Remove(video Video) (t Tag, err error) {
 	if tag.Tag == nil {
 		return
 	}
+
 	for _, t := range video.Tags {
 		var vs []string
 		for _, v := range tag.Tag[t] {
 			if v != video.Video {
-				vs = append(vs, video.Video)
+				vs = append(vs, v)
 			}
 		}
 
 		tag.Tag[t] = vs
 	}
 
-	return
+	return *tag, nil
 }

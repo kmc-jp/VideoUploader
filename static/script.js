@@ -1,3 +1,5 @@
+var LastVideoGetTime
+var LastCommentGetTime
 
 function editPage(title, user, video, thumbURL) {
     document.getElementById('editHead').textContent = String(title) + "の編集"
@@ -52,14 +54,8 @@ function GetScrool() {
     return tgt;
 }
 
-function HideEditWindow() {
-    document.getElementById('edit').style.display = "none";
-    return
-}
-
-
-function HideSlackMenu() {
-    document.getElementById('slack').style.display = "none";
+function HideWindow(id) {
+    document.getElementById(id).style.display = "none";
     return
 }
 
@@ -73,9 +69,96 @@ function ToggleDisplayDetails(id) {
     return
 }
 
-function HideDeleteWindow() {
-    document.getElementById('delete').style.display = "none";
-    return
+
+function GetSearchInfo() {
+    // Action
+    var Action = String("")
+    for (var i = 0; i < document.search_form.Action.length; i++) {
+        if (document.search_form.Action[i].checked) {
+            Action = document.search_form.Action[i].value;
+        }
+    }
+
+    // Keywords
+    var Keywords = String()
+    Keywords = document.getElementById("video_form").value;
+
+    // Mode
+    var SearchMode = String()
+    for (var i = 0; i < document.search_form.Mode.length; i++) {
+        if (document.search_form.Mode[i].checked) {
+            SearchMode = document.search_form.Mode[i].value;
+        }
+    }
+
+    GetSearchResult(Action, Keywords, SearchMode);
+    return;
+
+}
+
+function GetSearchResult(Action, Keywords, SearchMode) {
+
+    // サーバに送信
+    var url = location.protocol + "//" + location.hostname + location.pathname
+        + "?Action=" + Action
+        + "&Keywords=" + Keywords
+        + "&Mode=" + SearchMode;
+
+    console.log(url);
+
+    // 検索結果の描画先を作る
+    if (document.getElementById("search_result") == null) {
+        var Card = document.createElement("div");
+        var Title = document.createElement("h5");
+        var CardBody = document.createElement("div");
+
+        Card.className = "card";
+
+        Title.className = "card-header";
+        Title.textContent = "検索結果";
+
+        CardBody.className = "card-body";
+        CardBody.id = "search_result";
+
+        Card.appendChild(Title);
+        Card.appendChild(CardBody);
+        document.getElementById("search_top").appendChild(Card);
+    }
+
+    var request = new XMLHttpRequest();
+    request.open('GET', url);
+    request.responseType = 'json';
+    request.onreadystatechange = function () {
+        if (request.readyState != 4) {
+            document.getElementById('search_result').textContent = String("検索中です…");
+        } else if (request.status != 200) {
+            document.getElementById('search_result').textContent = String("検索に失敗しました。通信状態を確認してください。");
+        } else {
+            var result = request.response;
+            if (result == null) {
+                document.getElementById('search_result').textContent = String("検索に失敗しました。サーバ上で問題が発生している可能性があります。")
+                return
+            }
+            if (result["status"] != 200) {
+                document.getElementById('search_result').textContent = String("検索に失敗しました。サーバ上で問題が発生している可能性があります。")
+            } else {
+                document.getElementById('search_result').textContent = String("")
+
+                if (result["type"] == "videos") {
+                    DisplaySearchVideoResults(result["videos"]);
+                    return;
+                }
+                if (result["type"] == "tags") {
+                    DisplaySearchTagResults(result["tags"]);
+                    return;
+                }
+            }
+        }
+        return;
+    }
+
+    request.send(null);
+    return;
 }
 
 var pre_comments
@@ -111,6 +194,93 @@ function GetComments(VideoID, mode) {
                 document.getElementById('comment_text').textContent = String("")
                 //Commentの描画
                 DisplayComment(result["comments"])
+            }
+        }
+    };
+    request.send(null);
+}
+
+
+//コメントを送信する。
+function SendComment(VideoID) {
+    if (document.getElementById("comment_error") != null) {
+        document.getElementById("comment_error").remove();
+    }
+
+    var url = location.protocol + "//" + location.hostname + location.pathname + "?Action=AddComment";
+
+
+    let input = document.getElementById("comment_input").value;
+
+    if (input == "") {
+        return
+    }
+
+    var data = "Comment=" + input + "&VideoID=" + VideoID;
+
+    document.getElementById("comment_input").value = "";
+
+
+    var request = new XMLHttpRequest();
+    request.open('POST', url);
+    request.responseType = "json";
+    request.onreadystatechange = function () {
+        if (request.readyState != 4) {
+
+        } else if (request.status != 200) {
+            var errorMessage = document.createElement.appendChild("div")
+            document.getElementById("comment_output").appendChild(errorMessage)
+            errorMessage.id = "comment_error"
+            errorMessage.textContent = String("コメントの送信に失敗しました。\n通信環境を確認してください。")
+
+        } else {
+            var result = request.response;
+
+            if (result["status"] != 200) {
+                var errorMessage = document.getElementById("comment_output").appendChild("div")
+                errorMessage.id = "comment_error"
+                errorMessage.textContent = String("コメントの送信に失敗しました。")
+            } else {
+                GetComments(VideoID)
+            }
+        }
+    };
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    request.send(data);
+}
+
+function GetVideos(mode) {
+    var url = location.protocol + "//" + location.hostname + location.pathname + "?Action=VideoStatus";
+
+    var request = new XMLHttpRequest();
+    request.open('GET', url);
+    request.responseType = 'json';
+    request.onreadystatechange = function () {
+        if ((request.readyState != 4) && (mode == String("init"))) {
+            document.getElementById('my_videos').textContent = String("Now Loading...")
+        } else if ((request.status != 200) && (mode == String("init"))) {
+            document.getElementById('my_videos').textContent = String("動画の取得に失敗しました。")
+        } else {
+            var result = request.response;
+            if (result == null) {
+                if (mode == String("init")) {
+                    document.getElementById('my_videos').textContent = String("動画の取得に失敗しました。")
+                    return;
+                } else {
+                    return;
+                }
+            }
+            if ((result["status"] != 200) && (mode == String("init"))) {
+                document.getElementById('my_videos').textContent = String("動画の取得に失敗しました。")
+            } else {
+                document.getElementById('my_videos').textContent = String("")
+                let time = new Date(result["time"])
+                if (LastVideoGetTime != null && LastVideoGetTime == time) {
+                    return;
+                }
+                //動画リストの描画
+                DisplayVideoList(result["video"]);
+                LastVideoGetTime = time;
             }
         }
     };
@@ -187,96 +357,13 @@ function DisplayComment(comments) {
 
 }
 
-var pre_video_list
-
-//コメントを送信する。
-function SendComment(VideoID) {
-    if (document.getElementById("comment_error") != null) {
-        document.getElementById("comment_error").remove();
-    }
-
-    var url = location.protocol + "//" + location.hostname + location.pathname + "?Action=AddComment";
-
-
-    let input = document.getElementById("comment_input").value;
-
-    if (input == "") {
-        return
-    }
-
-    var data = "Comment=" + input + "&VideoID=" + VideoID;
-
-    document.getElementById("comment_input").value = "";
-
-
-    var request = new XMLHttpRequest();
-    request.open('POST', url);
-    request.responseType = "json";
-    request.onreadystatechange = function () {
-        if (request.readyState != 4) {
-
-        } else if (request.status != 200) {
-            var errorMessage = document.createElement.appendChild("div")
-            document.getElementById("comment_output").appendChild(errorMessage)
-            errorMessage.id = "comment_error"
-            errorMessage.textContent = String("コメントの送信に失敗しました。\n通信環境を確認してください。")
-
-        } else {
-            var result = request.response;
-
-            if (result["status"] != 200) {
-                var errorMessage = document.getElementById("comment_output").appendChild("div")
-                errorMessage.id = "comment_error"
-                errorMessage.textContent = String("コメントの送信に失敗しました。")
-            } else {
-                GetComments(VideoID)
-            }
-        }
-    };
-    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    request.send(data);
-}
-
-function GetVideos(mode) {
-    var url = location.protocol + "//" + location.hostname + location.pathname + "?Action=VideoStatus";
-
-    var request = new XMLHttpRequest();
-    request.open('GET', url);
-    request.responseType = 'json';
-    request.onreadystatechange = function () {
-        if ((request.readyState != 4) && (mode == String("init"))) {
-            document.getElementById('my_videos').textContent = String("Now Loading...")
-        } else if ((request.status != 200) && (mode == String("init"))) {
-            document.getElementById('my_videos').textContent = String("動画の取得に失敗しました。")
-        } else {
-            var result = request.response;
-            if (result == null) {
-                if (mode == String("init")) {
-                    document.getElementById('my_videos').textContent = String("動画の取得に失敗しました。")
-                    return
-                } else {
-                    return
-                }
-            }
-            if ((result["status"] != 200) && (mode == String("init"))) {
-                document.getElementById('my_videos').textContent = String("動画の取得に失敗しました。")
-            } else {
-                document.getElementById('my_videos').textContent = String("")
-                //動画リストの描画
-                DisplayVideoList(result["video"])
-            }
-        }
-    };
-    request.send(null);
-}
-
-
 function DisplayVideoList(videos) {
-    if (pre_video_list == videos) {
-        return
-    }
-
     let VideoList = document.getElementById("my_videos")
+
+    VideoList.textContent = "";
+    if (videos == null || videos.length == 0) {
+        VideoList.textContent = "まだあなたは動画を投稿していないようです。"
+    }
 
     let Table = document.createElement("table");
     Table.className = "nb";
@@ -443,7 +530,6 @@ function DisplayVideoList(videos) {
             {
                 let TitleData = document.createElement("td");
                 let Title = document.createElement("h6");
-                let TitleLink = document.createElement("a");
 
                 Title.textContent = videos[i]["title"];
                 TitleData.rowSpan = 2;
@@ -665,7 +751,166 @@ function DisplayVideoList(videos) {
     }
     VideoList.appendChild(Table)
 
-    pre_video_list = videos
-
     return
+}
+
+
+// 検索結果描画
+function DisplaySearchVideoResults(videos) {
+    let VideoList = document.getElementById("search_result")
+    VideoList.textContent = "";
+    if (videos == null || videos.length == 0) {
+        VideoList.textContent = "該当する動画は見つかりませんでした。";
+    }
+    let Table = document.createElement("table");
+    Table.className = "nb";
+
+    for (let i = 0; i < videos.length; i++) {
+
+        if (videos[i]["phase"] == "" && videos[i]["error"] == "") {
+            let TopRow = document.createElement("tr");
+            // 一行目
+            {
+                time = new Date(videos[i]["time"])
+                let TimeText = document.createElement("small");
+                TimeText.className = "text-muted";
+                TimeText.textContent = "投稿日時："
+                    + String(time.getFullYear()) + "年"
+                    + String(time.getMonth() + 1) + "月"
+                    + String(time.getDate()) + "日"
+                    + String(time.getHours()) + "時"
+                    + String(time.getMinutes()) + "分";
+
+                let ImgData = document.createElement("td");
+                let TimeData = document.createElement("td");
+
+                let TimeVideoLink = document.createElement("a");
+                let ImgVideoLink = document.createElement("a");
+
+                let Img = document.createElement("img");
+
+                ImgData.rowSpan = 4;
+                TimeData.rowSpan = 1;
+
+                ImgVideoLink.href = "index.up?Page=Play&User=" + videos[i]["user"] + "&Video=" + videos[i]["id"];
+                TimeVideoLink.href = "index.up?Page=Play&User=" + videos[i]["user"] + "&Video=" + videos[i]["id"];
+
+                Img.src = videos[i]["thumb_url"];
+                Img.className = "video";
+
+                ImgVideoLink.appendChild(Img);
+                ImgData.appendChild(ImgVideoLink);
+
+                TimeVideoLink.appendChild(TimeText);
+                TimeData.appendChild(TimeVideoLink);
+
+                TopRow.appendChild(ImgData);
+                TopRow.appendChild(TimeData);
+            }
+
+            // 二行目
+            let MidRow = document.createElement("tr");
+
+            {
+                let TitleData = document.createElement("td");
+                let Title = document.createElement("h6");
+                let TitleLink = document.createElement("a");
+
+                Title.textContent = videos[i]["title"];
+
+                TitleLink.appendChild(Title);
+                TitleLink.href = "index.up?Page=Play&User=" + videos[i]["user"] + "&Video=" + videos[i]["id"];
+
+                TitleData.rowSpan = 2;
+                TitleData.appendChild(TitleLink);
+
+                MidRow.appendChild(TitleData);
+            }
+
+            // 三行目
+            let BottomRow = document.createElement("tr")
+            {
+                let SlackData = document.createElement("td");
+                let SlackLink = document.createElement("a");
+                let SlackSpan = document.createElement("span");
+                let SlackIcon = document.createElement("i");
+
+                SlackLink.href = "javascript:SlackMenu('"
+                    + videos[i]["title"] + "','"
+                    + videos[i]["user"] + "','"
+                    + videos[i]["id"] + "','"
+                    + videos[i]["thumb_url"]
+                    + "', 'MyPage');";
+
+                SlackSpan.style.fontSize = "30px";
+                SlackSpan.style.color = "#4B4B4B";
+
+                SlackIcon.className = "fab fa-slack";
+                SlackData.rowSpan = 2;
+
+                SlackSpan.appendChild(SlackIcon);
+                SlackLink.appendChild(SlackSpan);
+                SlackData.appendChild(SlackLink);
+
+                BottomRow.appendChild(SlackData);
+            }
+
+            Table.appendChild(TopRow);
+            Table.appendChild(MidRow);
+            Table.appendChild(BottomRow);
+            Table.appendChild(document.createElement("tr"));
+
+            VideoList.appendChild(Table)
+        }
+
+        return
+    }
+}
+
+function DisplaySearchTagResults(tags) {
+    let TagList = document.getElementById("search_result")
+    TagList.textContent = "";
+    if (tags == null || tags.length == 0) {
+        TagList.textContent = "該当する動画は見つかりませんでした。";
+    }
+    let Table = document.createElement("table");
+    Table.className = "nb";
+
+    for (let i = 0; i < tags.length; i++) {
+        var Row = document.createElement("tr");
+        {
+            var IconData = document.createElement("td");
+            var IconSpan = document.createElement("span");
+            var Icon = document.createElement("i");
+
+            IconData.style.width = "60px";
+            IconData.style.padding = "0px";
+
+            IconSpan.style.fontSize = "60px";
+
+            Icon.className = "fas fa-tag";
+
+            IconSpan.appendChild(Icon);
+            IconData.appendChild(IconSpan);
+            Row.appendChild(IconData);
+        }
+        {
+            var TagData = document.createElement("td");
+            var TagLink = document.createElement("a")
+
+            TagData.style.textAlign = "left";
+            TagData.style.width = "unset";
+
+            TagLink.href = "javascript:GetSearchResult('SearchTags'," + "'" + tags[i] + "','or')";
+            TagLink.textContent = tags[i];
+
+            TagData.appendChild(TagLink);
+
+            Row.appendChild(TagData)
+        }
+        Table.appendChild(Row);
+    }
+
+    TagList.appendChild(Table);
+    return;
 }
