@@ -766,7 +766,6 @@ function DisplaySearchVideoResults(videos) {
     Table.className = "nb";
 
     for (let i = 0; i < videos.length; i++) {
-
         if (videos[i]["phase"] == "" && videos[i]["error"] == "") {
             let TopRow = document.createElement("tr");
             // 一行目
@@ -862,9 +861,8 @@ function DisplaySearchVideoResults(videos) {
 
             VideoList.appendChild(Table)
         }
-
-        return
     }
+    return
 }
 
 function DisplaySearchTagResults(tags) {
