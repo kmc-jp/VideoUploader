@@ -156,6 +156,7 @@ func Encode(newData lib.Video) (err error) {
 			return nil
 		}
 
+		os.Chmod(filepath.Join("Videos", newData.Video+".png"), 0777)
 	}
 
 	lib.TmpClear(newData.Video)
