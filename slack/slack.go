@@ -21,7 +21,7 @@ func SendVideoInfo(video lib.Video, channel, URL string) error {
 	}()
 
 	if err != nil {
-		return err
+		link = ""
 	}
 
 	var Message Webhook = Webhook{
