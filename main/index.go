@@ -66,6 +66,8 @@ func IndexPageHandle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Add("Content-Type", "text/html")
+
 	if e = t.ExecuteTemplate(w, "index", IndexPage); e != nil {
 		fmt.Fprintf(w, "%s", e.Error())
 		return

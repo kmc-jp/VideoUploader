@@ -42,6 +42,7 @@ func UploadPageHandle(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%s", e.Error())
 		return
 	}
+	w.Header().Add("Content-Type", "text/html")
 
 	if e = t.ExecuteTemplate(w, "upload", T); e != nil {
 		fmt.Fprintf(w, "%s", e.Error())

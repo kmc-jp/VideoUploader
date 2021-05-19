@@ -43,6 +43,7 @@ func SearchPageHandle(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%s", e.Error())
 		return
 	}
+	w.Header().Add("Content-Type", "text/html")
 
 	if e = t.ExecuteTemplate(w, "search", SearchPage); e != nil {
 		fmt.Fprintf(w, "%s", e.Error())
@@ -117,6 +118,8 @@ func ShowTagPage(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%s", e.Error())
 		return
 	}
+
+	w.Header().Add("Content-Type", "text/html")
 
 	if e = t.ExecuteTemplate(w, "search", SearchPage); e != nil {
 		fmt.Fprintf(w, "%s", e.Error())

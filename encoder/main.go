@@ -3,14 +3,17 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
 	"../lib"
 	"../slack"
+	"github.com/floostack/transcoder/ffmpeg"
 )
 
 func main() {
@@ -109,47 +112,10 @@ func Encode(newData lib.Video) (err error) {
 	lib.Progress(newData, lib.Status{Phase: "generating thumbnail"})
 
 	if !lib.FileExistance(filepath.Join("Videos", newData.Thumb)) {
-		out, err = exec.Command(lib.Settings.FFprobe, filepath.Join("Videos", newData.Video)).CombinedOutput()
+		err = makeVideoThumb(newData.Video)
 		if err != nil {
-			lib.Logger(fmt.Errorf("Encode:%s\nFFproveState:%s", err.Error(), out))
-			slack.SendError(fmt.Errorf("Encode:%s\nFFproveState:%s", err.Error(), out))
-			lib.Progress(newData, lib.Status{Error: fmt.Sprintf("Encode:\n%s\n", err.Error())})
-
-			os.Remove(filepath.Join("Videos", newData.Video))
-			lib.TmpClear(newData.Video)
-
-			return nil
-		}
-		t, err := getffTimeStr(out)
-		if err != nil {
-			lib.Logger(fmt.Errorf("Encode:%s\nFFproveState:%s", err.Error(), out))
-			slack.SendError(fmt.Errorf("Encode:%s\nFFproveState:%s", err.Error(), out))
-			lib.Progress(newData, lib.Status{Error: fmt.Sprintf("Encode:\n%s\n", err.Error())})
-			os.Remove(filepath.Join("Videos", newData.Video))
-			lib.TmpClear(newData.Video)
-			return nil
-		}
-		if t[2] == "00" && t[1] == "00" {
-			lib.Logger(fmt.Errorf("Encode:%s\nFFproveState:%s", err.Error(), out))
-			slack.SendError(fmt.Errorf("Encode:%s\nFFproveState:%s\ntime%#v", err.Error(), out, t))
-			lib.Progress(newData, lib.Status{Error: fmt.Sprintf("Encode:\n%s\n", err.Error())})
-			lib.TmpClear(newData.Video)
-
-			return nil
-		}
-
-		out, err = exec.Command(
-			lib.Settings.FFmpeg, "-i", filepath.Join("tmp", newData.Video, videoName),
-			"-ss", t[2],
-			"-vframes", "1",
-			"-filter:v",
-			"scale=360:-1",
-			filepath.Join("Videos", newData.Video+".png"),
-		).CombinedOutput()
-
-		if err != nil {
-			lib.Logger(fmt.Errorf("Encode:%s\nFFmpegState:%s", err.Error(), out))
-			slack.SendError(fmt.Errorf("Encode:%s\nFFmpegState:%s", err.Error(), out))
+			lib.Logger(fmt.Errorf("Encode:%s\n", err.Error()))
+			slack.SendError(fmt.Errorf("Encode:%s\n", err.Error()))
 			lib.Progress(newData, lib.Status{Error: fmt.Sprintf("Encode:\n%s\n", err.Error())})
 			os.Remove(filepath.Join("Videos", newData.Video))
 			lib.TmpClear(newData.Video)
@@ -170,4 +136,72 @@ func getffTimeStr(out []byte) ([]string, error) {
 		return []string{}, fmt.Errorf("TypeError")
 	}
 	return strings.Split(strings.Split(t[1], ".")[0], ":"), nil
+}
+
+// makeVideoThumb Make video thumbnail
+func makeVideoThumb(Video string) error {
+	const ThumbSizeMax = 360
+	var ff = ffmpeg.
+		New(
+			&ffmpeg.Config{
+				FfmpegBinPath:   lib.Settings.FFmpeg,
+				FfprobeBinPath:  lib.Settings.FFprobe,
+				ProgressEnabled: false,
+			},
+		)
+
+	meta, err := ff.Input(filepath.Join("Videos", Video)).GetMetadata()
+	if err != nil {
+		return err
+	}
+
+	du, err := strconv.ParseFloat(meta.GetFormat().GetDuration(), 64)
+	if err != nil {
+		return err
+	}
+
+	rand.Seed(time.Now().UnixNano())
+
+	var width, height int
+
+	var scale string
+	// var format = "jpg"
+	var overwrite = true
+	var ss = strconv.Itoa(rand.Intn(int(du)))
+	var vframes = 1
+
+	for _, st := range meta.GetStreams() {
+		if st.GetWidth() == 0 || st.GetHeight() == 0 {
+			continue
+		}
+		width = st.GetWidth()
+		height = st.GetHeight()
+	}
+
+	switch {
+	case width == 0 || height == 0:
+		return fmt.Errorf("VideoSizeError")
+	case width > height:
+		var nHeight = int(float32(height*ThumbSizeMax) / float32(width))
+		scale = fmt.Sprintf("%dx%d", ThumbSizeMax, nHeight)
+	case width <= height:
+		var nWidth = int(float32(width*ThumbSizeMax) / float32(height))
+		scale = fmt.Sprintf("%dx%d", nWidth, ThumbSizeMax)
+	}
+
+	var opts = ffmpeg.Options{
+		// OutputFormat: &format,
+		Overwrite:  &overwrite,
+		SeekTime:   &ss,
+		Vframes:    &vframes,
+		Resolution: &scale,
+	}
+
+	_, err = ff.
+		Input(filepath.Join("Videos", Video)).
+		Output(filepath.Join("Videos", Video+".png")).
+		WithOptions(opts).
+		Start(opts)
+
+	return err
 }
