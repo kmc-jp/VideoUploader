@@ -5,7 +5,7 @@ builds:
   - 
     id: "Encoder"
     main: ./encoder
-    binary: encoder
+    binary: encode
     env:
       - CGO_ENABLED=0
     goos:
