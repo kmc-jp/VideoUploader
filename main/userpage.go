@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"../lib"
+	"github.com/kmc-jp/VideoUploader/encoder/lib"
 )
 
 //UserPageHandle handle user page

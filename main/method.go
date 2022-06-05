@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"net/url"
 
-	"../lib"
+	"github.com/kmc-jp/VideoUploader/encoder/lib"
 )
 
 //Get get video data from allVideos.json

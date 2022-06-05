@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"../lib"
-	"../slack"
+	"github.com/kmc-jp/VideoUploader/encoder/lib"
+	"github.com/kmc-jp/VideoUploader/encoder/slack"
 )
 
 //SearchPageHandle show search page

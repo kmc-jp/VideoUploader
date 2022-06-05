@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"../lib"
-	"../slack"
+	"github.com/kmc-jp/VideoUploader/encoder/lib"
+	"github.com/kmc-jp/VideoUploader/encoder/slack"
 )
 
 //MyPageHandle handle my page

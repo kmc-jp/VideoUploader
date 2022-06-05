@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"../lib"
+	"github.com/kmc-jp/VideoUploader/encoder/lib"
 )
 
 //SendVideoInfo sends video information to slack channel

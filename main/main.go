@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"net/http/cgi"
 
-	"../lib"
+	"github.com/kmc-jp/VideoUploader/encoder/lib"
 )
 
 const (

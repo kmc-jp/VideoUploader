@@ -1,8 +1,6 @@
 package main
 
-import (
-	"../lib"
-)
+import "github.com/kmc-jp/VideoUploader/encoder/lib"
 
 //GetQuery handle query data
 type GetQuery map[string]string

@@ -8,8 +8,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"../lib"
-	"../slack"
+	"github.com/kmc-jp/VideoUploader/encoder/lib"
+	"github.com/kmc-jp/VideoUploader/encoder/slack"
 )
 
 //SettingsPageHandle hadle settings page

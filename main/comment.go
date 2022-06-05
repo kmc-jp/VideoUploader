@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"../lib"
-	"../slack"
+	"github.com/kmc-jp/VideoUploader/encoder/lib"
+	"github.com/kmc-jp/VideoUploader/encoder/slack"
 )
 
 // AddComment append comment

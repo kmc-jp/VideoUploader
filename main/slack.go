@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"../lib"
-	"../slack"
+	"github.com/kmc-jp/VideoUploader/encoder/lib"
+	"github.com/kmc-jp/VideoUploader/encoder/slack"
 )
 
 // SendSlack send video info for slack

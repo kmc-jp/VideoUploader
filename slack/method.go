@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"../lib"
+	"github.com/kmc-jp/VideoUploader/encoder/lib"
 )
 
 // Send message to slack

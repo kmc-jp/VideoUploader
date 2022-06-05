@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"../lib"
+	"github.com/kmc-jp/VideoUploader/encoder/lib"
 )
 
 //UploadPageHandle handle uploaded video file

@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"sort"
 
-	"../lib"
+	"github.com/kmc-jp/VideoUploader/encoder/lib"
 )
 
 // ListPageHandle  handle user list page

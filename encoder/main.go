@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"../lib"
-	"../slack"
 	"github.com/floostack/transcoder/ffmpeg"
+	"github.com/kmc-jp/VideoUploader/encoder/lib"
+	"github.com/kmc-jp/VideoUploader/encoder/slack"
 )
 
 func main() {
@@ -99,6 +99,7 @@ func Encode(newData lib.Video) (err error) {
 		lib.Settings.FFmpeg,
 		"-i", filepath.Join("tmp", newData.Video, videoName),
 		filepath.Join("Videos", newData.Video),
+		"-acodec", "copy",
 	).CombinedOutput()
 
 	if err != nil {
