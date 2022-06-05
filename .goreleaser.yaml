@@ -27,7 +27,8 @@ archives:
       linux: Linux
     name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
     files: 
-      - resources/**/*
+      - resources/*
+      - static/*
       - static/**/*
   - 
     id: "ClientArchive"
