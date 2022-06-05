@@ -99,7 +99,7 @@ func Encode(newData lib.Video) (err error) {
 		lib.Settings.FFmpeg,
 		"-i", filepath.Join("tmp", newData.Video, videoName),
 		filepath.Join("Videos", newData.Video),
-		"-acodec", "copy",
+		"-codec:a", "libfdk_aac",
 		"-b:a", "320k",
 	).CombinedOutput()
 
