@@ -98,9 +98,9 @@ func Encode(newData lib.Video) (err error) {
 	out, err := exec.Command(
 		lib.Settings.FFmpeg,
 		"-i", filepath.Join("tmp", newData.Video, videoName),
-		filepath.Join("Videos", newData.Video),
-		"-codec:a", "libfdk_aac",
+		"-c:a", "aac",
 		"-b:a", "320k",
+		filepath.Join("Videos", newData.Video),
 	).CombinedOutput()
 
 	if err != nil {
