@@ -8,3 +8,4 @@ Settings.json
 \#*
 ffmpeg64
 send.sh
+dist/

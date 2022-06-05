@@ -1,0 +1,71 @@
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - 
+    id: "Encoder"
+    main: ./encoder
+    binary: encoder
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+  - 
+    id: "CGI"
+    main: ./main
+    binary: index.up
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+archives:
+  - 
+    builds:
+      - Encoder
+      - CGI
+    replacements:
+      linux: Linux
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    files: 
+      - resources/**/*
+      - static/**/*
+  - 
+    id: "ClientArchive"
+    builds:
+      - Client
+    replacements:
+      linux: Linux
+      darwin: macOS
+      windows: Windows
+      386: i386
+      amd64: x86_64
+    name_template: "Client_{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+release:
+  draft: false
+
+  prerelease: auto
+
+  mode: append
+
+  header: |
+      ## Update ({{ .Date }})
+  footer: |
+    Those were the changes on {{ .Tag }}!
+    ## About Archive Name
+    The Server_* file is a program placed on the SSH source machine, and the Client_* file is a program placed on the SSH destination machine.
+
+  name_template: "{{.ProjectName}}-v{{.Version}}"
+  
