@@ -100,6 +100,7 @@ func Encode(newData lib.Video) (err error) {
 		"-i", filepath.Join("tmp", newData.Video, videoName),
 		filepath.Join("Videos", newData.Video),
 		"-acodec", "copy",
+		"-b:a", "320k",
 	).CombinedOutput()
 
 	if err != nil {
